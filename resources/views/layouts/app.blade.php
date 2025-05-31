@@ -7,30 +7,51 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- Font Awesome CDN (jika tidak via NPM) --}}
+        {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" /> --}}
+        <style>[x-cloak] { display: none !important; }</style>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+    <body class="font-['Instrument_Sans'] antialiased" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
+        <div class="min-h-screen bg-slate-100 dark:bg-slate-900 md:flex">
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            {{-- Sidebar Backdrop untuk Mobile --}}
+            <div x-show="sidebarOpen"
+                 @click="sidebarOpen = false"
+                 class="fixed inset-0 bg-slate-900/50 z-30 md:hidden"
+                 x-cloak
+                 x-transition:enter="transition-opacity ease-linear duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition-opacity ease-linear duration-300"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+            </div>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+            {{-- 1. Sidebar --}}
+            @include('layouts.sidebar') {{-- sidebar.blade.php akan menggunakan sidebarOpen --}}
+
+            {{-- 2. Area Konten Utama (Kanan Sidebar) --}}
+            <div class="flex-1 flex flex-col h-screen md:overflow-y-auto">
+                
+                {{-- Navigasi Atas (akan memiliki tombol hamburger untuk sidebarOpen) --}}
+                @include('layouts.navigation')
+
+                @isset($header)
+                    <header class="bg-white dark:bg-slate-800 shadow">
+                        <div class="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
+                <main class="flex-grow p-4 sm:p-6 lg:p-8">
+                    {{ $slot }}
+                </main>
+            </div>
         </div>
     </body>
 </html>
