@@ -6,6 +6,7 @@ import intersect from '@alpinejs/intersect';
 
 window.Alpine = Alpine;
 Alpine.plugin(intersect); 
+import '@fortawesome/fontawesome-free/css/all.min.css'; 
 
 Alpine.start();
 
