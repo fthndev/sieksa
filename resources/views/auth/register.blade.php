@@ -36,7 +36,6 @@
                 </p>
             </div>
         </div>
-
         <div class="w-full md:w-1/2 lg:w-3/5 xl:w-[55%] flex items-center justify-center p-6 sm:p-10 lg:p-12">
             <div class="w-full max-w-sm mx-auto">
                 <div class="text-center md:text-left">
@@ -77,17 +76,15 @@
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none z-20">
                             <i class="fas fa-envelope text-slate-400 group-focus-within:text-red-600 dark:text-slate-500 dark:group-focus-within:text-red-500 transition-colors duration-300"></i>
                         </div>
-                        <input
-                            id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder=" "
-                            class="block ps-10 pe-3.5 py-3.5 w-full text-sm text-slate-900 dark:text-white bg-transparent rounded-lg border-2 border-slate-300 dark:border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 dark:focus:border-red-500 peer"
-                        />
+                        <x-text-input id="nim" class="block mt-1 w-full" type="text" name="nim" :value="old('nim')" required autofocus 
+                        class="block ps-10 pe-3.5 py-3.5 w-full text-sm text-slate-900 dark:text-white bg-transparent rounded-lg border-2 border-slate-300 dark:border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 dark:focus:border-red-500 peer"/>
                         <label
-                            for="email"
+                            for="nim"
                             class="absolute text-sm text-slate-500 dark:text-slate-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-50 dark:bg-slate-900 px-2 peer-focus:px-2 peer-focus:text-red-600 dark:peer-focus:text-red-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-[38px] peer-placeholder-shown:start-[38px] peer-focus:start-3"
                         >
-                            {{ __('Alamat Email') }}
+                            {{ __('NIM') }}
                         </label>
-                        <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-xs" />
+                        <x-input-error :messages="$errors->get('nim')" class="mt-1.5 text-xs" />
                     </div>
 
                     <div class="relative group">

@@ -11,6 +11,10 @@ class Akun extends Authenticatable
     protected $primaryKey = 'id_akun';
 
     protected $fillable = ['nim', 'password'];
+    
+    public $timestamps = false;
+
+    protected $hidden = ['password', 'remember_token'];
 
     public function pengguna()
     {
