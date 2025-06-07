@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController; // Controller umum untuk /dashboard awal
 use App\Http\Controllers\Warga\DashboardController as WargaDashboardController;
 use App\Http\Controllers\Musahil\DashboardController as MusahilDashboardController;
+use App\Http\Controllers\Musahil\ListWargaDidampingiController;
 use App\Http\Controllers\PJ\DashboardController as PjDashboardController;
 use App\Http\Controllers\EkstrakurikulerDetailController; // <-- TAMBAHKAN IMPORT INI
 
@@ -46,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('musahil.')
         ->group(function () {
             Route::get('/dashboard', [MusahilDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/list-warga', [ListWargaDidampingiController::class, 'index'])->name('list-warga');
             // Route lain khusus musahil
         });
 
@@ -55,9 +57,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('pj.')
         ->group(function () {
             Route::get('/dashboard', [PjDashboardController::class, 'index'])->name('dashboard');
-            // Route lain khusus pj
-            // Contoh jika PJ bisa mengelola ekstrakurikuler:
-            // Route::resource('ekstrakurikuler', PJEkstrakurikulerController::class); // ini contoh saja
+
+            // RUTE UNTUK MANAJEMEN EKSTRAKURIKULER OLEH PJ
+            Route::get('/ekstrakurikuler/create', [PJEkstrakurikulerController::class, 'create'])->name('ekstrakurikuler.create'); // <-- INI RUTE YANG ANDA BUTUHKAN
+            Route::post('/ekstrakurikuler', [PJEkstrakurikulerController::class, 'store'])->name('ekstrakurikuler.store');
+            // Anda mungkin juga memerlukan rute untuk index, edit, update, destroy ekstrakurikuler di sini nanti
+            // Route::get('/ekstrakurikuler', [PJEkstrakurikulerController::class, 'index'])->name('ekstrakurikuler.index');
+            // Route::get('/ekstrakurikuler/{ekstrakurikuler}/edit', [PJEkstrakurikulerController::class, 'edit'])->name('ekstrakurikuler.edit');
+            // Route::put('/ekstrakurikuler/{ekstrakurikuler}', [PJEkstrakurikulerController::class, 'update'])->name('ekstrakurikuler.update');
+            // Route::delete('/ekstrakurikuler/{ekstrakurikuler}', [PJEkstrakurikulerController::class, 'destroy'])->name('ekstrakurikuler.destroy');
         });
 
     // Rute Profil

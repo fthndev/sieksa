@@ -16,20 +16,8 @@ class DashboardController extends Controller
     {
         /** @var \App\Models\Pengguna $user */
         $user = Auth::user(); // Ini adalah instance Pengguna (Musahil) yang sedang login
-
-        $listWargaDidampingi = collect(); // Inisialisasi sebagai koleksi kosong
-
-        if ($user) {
-            // Mengambil semua pengguna (warga) yang didampingi oleh musahil ini
-            // Kita bisa memilih kolom tertentu untuk efisiensi jika tidak butuh semua data warga
-            $listWargaDidampingi = $user->wargaDidampingi()->select('pengguna.nim', 'pengguna.nama', 'pengguna.email')->get();
-            // Atau jika butuh semua data warga:
-            // $listWargaDidampingi = $user->wargaDidampingi;
-        }
-
         return view('musahil.dashboard', [
             'user' => $user,
-            'listWargaDidampingi' => $listWargaDidampingi, // Mengirim daftar warga ke view
         ]);
     }
 }
