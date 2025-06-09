@@ -23,7 +23,7 @@
         {{-- Contoh: Dashboard Link --}}
         @php
             $currentRoute = request()->route() ? request()->route()->getName() : '';
-            $isDashboardActive = ($currentRoute == 'dashboard');
+            $isDashboardActive = Str::contains($currentRoute, 'dashboard');
             $dashboardLinkClasses = 'flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
             $dashboardLinkClasses .= $isDashboardActive
                 ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 font-semibold'
@@ -39,58 +39,84 @@
             Dashboard
         </a>
 
-        {{-- Ekstrakurikuler Dropdown (dengan penyesuaian @click untuk mobile) --}}
-        @php $isEkstrakurikulerActive = Str::startsWith($currentRoute, 'ekstrakurikuler.'); @endphp
-        <div x-data="{ open: {{ $isEkstrakurikulerActive ? 'true' : 'false' }} }">
-            @php
-                // ... (logika kelas untuk ekstrakurikulerLinkClasses & ekstrakurikulerIconClasses tetap sama) ...
-                 $ekstrakurikulerLinkClasses = 'w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
-                $ekstrakurikulerLinkClasses .= ($isEkstrakurikulerActive && ! $currentRoute) // Jika parent aktif tapi bukan anak
-                    ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 font-semibold' // Tidak ada border kiri untuk parent dropdown
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100';
-                 $ekstrakurikulerIconClasses = ($isEkstrakurikulerActive  && ! $currentRoute)
-                    ? 'text-red-600 dark:text-red-400'
-                    : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
-            @endphp
-            <button @click="open = !open"
-                    class="{{ $ekstrakurikulerLinkClasses }} text-left">
+        @php
+            $isEkstrakurikulerActive = Str::contains($currentRoute, 'ekstra');
+            $ekstrakurikulerLinkClasses = 'w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
+            $ekstrakurikulerLinkClasses .= $isEkstrakurikulerActive
+                ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 font-semibold'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100';
+
+            $ekstrakurikulerIconClasses = $isEkstrakurikulerActive
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
+        @endphp
+
+        <div x-data="{ 
+                open: {{ $isEkstrakurikulerActive ? 'true' : 'false' }},
+                // Jika aktif, lock supaya dropdown tidak bisa ditutup
+                toggle() {
+                    if (!{{ $isEkstrakurikulerActive ? 'true' : 'false' }}) {
+                        this.open = !this.open;
+                    }
+                }
+            }"
+        >
+            <button @click="toggle()" class="{{ $ekstrakurikulerLinkClasses }} text-left">
                 <span class="flex items-center">
                     <i class="fas fa-puzzle-piece w-5 h-5 me-3 {{ $ekstrakurikulerIconClasses }} transition-colors duration-150"></i>
                     Ekstrakurikuler
                 </span>
                 <i class="fas w-4 h-4 transform transition-transform duration-200 text-slate-500 group-hover:text-slate-700"
-                   :class="{'fa-chevron-down': !open, 'fa-chevron-up': open}"></i>
+                :class="{'fa-chevron-down': !open, 'fa-chevron-up': open}"></i>
             </button>
 
+            
             <div x-show="open" x-transition ... class="mt-1 ms-4 ps-3 border-l-2 ..." x-cloak>
                 @php
-                    $kelasDummy = [
-                        ['nama' => 'Klub Robotik', 'icon' => 'fa-cogs', 'route_name' => 'ekstrakurikuler.robotik'],
-                        // ... data dummy lainnya ...
-                    ];
+                    $user = Auth::user();
+                    $ekstra = $user->ekstrakurikuler;
                 @endphp
-                @foreach($kelasDummy as $kelas)
-                    {{-- ... (logika kelas $isKelasActive, $kelasLinkClasses, $kelasIconClasses tetap sama) ... --}}
-                     @php
-                        $isKelasActive = ($currentRoute == $kelas['route_name']);
-                        $kelasLinkClasses = 'flex items-center w-full ps-3 pe-2 py-2 rounded-md text-sm transition-colors duration-150 group ';
-                        $kelasLinkClasses .= $isKelasActive
-                            ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 -ml-[14px] pl-[10px] font-semibold'
-                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100';
-                        $kelasIconClasses = $isKelasActive
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300';
-                    @endphp
-                    <a href="#" {{-- {{ route($kelas['route_name']) }} --}}
-                       class="{{ $kelasLinkClasses }}"
-                       @click="if(window.innerWidth < 768) sidebarOpen = false" {{-- Tutup sidebar di mobile saat link diklik --}}>
-                        <i class="fas {{ $kelas['icon'] }} w-4 h-4 me-2.5 {{ $kelasIconClasses }} transition-colors duration-150 opacity-80"></i>
-                        {{ $kelas['nama'] }}
-                    </a>
-                @endforeach
+
+                @if ($ekstra && $ekstra->id_ekstrakurikuler != '' && $user->id_ekstrakurikuler != '')
+                    @if ($ekstra)
+                        @php
+                            $data_ekstra = [[
+                                'nama' => $ekstra->nama_ekstra,
+                                'icon' => 'fa-cogs',
+                                'route_name' => 'detail_ekstra', 
+                                'param' => $ekstra->id_ekstrakurikuler
+                            ]];
+                        @endphp
+
+                        @foreach($data_ekstra as $kelas)
+                            @php
+                                $isKelasActive = Str::contains($currentRoute, 'ekstra');
+                                $kelasLinkClasses = 'flex items-center w-full ps-3 pe-2 py-2 rounded-md text-sm transition-colors duration-150 group ';
+                                $kelasLinkClasses .= $isKelasActive
+                                    ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 -ml-[14px] pl-[10px] font-semibold'
+                                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100';
+                                $kelasIconClasses = $isKelasActive
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300';
+                            @endphp
+                            <a href="{{ route($user->role.'.'.$kelas['route_name'], $kelas['param']) }}"
+                            class="{{ $kelasLinkClasses }}"
+                            @click="if(window.innerWidth < 768) sidebarOpen = false">
+                                <i class="fas {{ $kelas['icon'] }} w-4 h-4 me-2.5 {{ $kelasIconClasses }} transition-colors duration-150 opacity-80"></i>
+                                {{ ucwords($kelas['nama']) }}
+                            </a>
+                        @endforeach
+                    @endif
+                @endif
             </div>
         </div>
+        
          {{-- ... Sisa menu sidebar Anda ... --}}
+    {{-- Debug: --}}
+    <div class="text-xs text-slate-400 px-4">
+        Route: {{ $currentRoute }}<br>
+        Ekstrakurikuler aktif? {{ $isEkstrakurikulerActive ? 'Ya' : 'Tidak' }}
+    </div>
     </nav>
 
     <div class="p-4 border-t border-slate-200 dark:border-slate-700 mt-auto shrink-0">
