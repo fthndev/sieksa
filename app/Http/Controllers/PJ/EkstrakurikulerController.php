@@ -20,11 +20,11 @@ class EkstrakurikulerController extends Controller
      */
     public function lihatPeserta(Ekstrakurikuler $ekstrakurikuler): View
     {
-        // $user = Auth::user();
+        $user = Auth::user();
         // Opsional: Tambahkan pengecekan apakah PJ yang login adalah PJ dari ekstrakurikuler ini
-        // if ($user->nim !== $ekstrakurikuler->id_pj) {
-        //     abort(403, 'Anda tidak berhak mengakses daftar peserta ekstrakurikuler ini.');
-        // }
+        if ($user->nim !== $ekstrakurikuler->id_pj) {
+            abort(403, 'Anda tidak berhak mengakses daftar peserta ekstrakurikuler ini.');
+        }
 
         // Eager load data peserta (warga) beserta detail yang dibutuhkan
         // Asumsi relasi di model Ekstrakurikuler adalah 'pesertas()'
