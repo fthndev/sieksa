@@ -1,41 +1,34 @@
 <?php
 
-namespace App\Http\Controllers\PJ;
+namespace App\Http\Controllers\Pj;
 
 use App\Http\Controllers\Controller;
-use App\Models\Ekstrakurikuler; // Import model Ekstrakurikuler
-use Illuminate\Http\Request;    // Bisa dihapus jika tidak digunakan
+use App\Models\Pengguna;
+use App\Models\Ekstrakurikuler;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth; // Untuk memastikan PJ yang akses adalah PJ yang berhak (opsional)
 
 class EkstrakurikulerController extends Controller
 {
-    // ... (method create, store, index, edit, update, destroy Anda mungkin ada di sini) ...
+    public function lihatPeserta(Request $request, $id): View
+{
+    $nim = $request->query('nim'); // opsional, jika ingin filter berdasarkan NIM
 
-    /**
-     * Menampilkan daftar peserta untuk ekstrakurikuler tertentu.
-     *
-     * @param  \App\Models\Ekstrakurikuler  $ekstrakurikuler
-     * @return \Illuminate\View\View
-     */
-    public function lihatPeserta(Ekstrakurikuler $ekstrakurikuler): View
-    {
-        $user = Auth::user();
-        // Opsional: Tambahkan pengecekan apakah PJ yang login adalah PJ dari ekstrakurikuler ini
-        if ($user->nim !== $ekstrakurikuler->id_pj) {
-            abort(403, 'Anda tidak berhak mengakses daftar peserta ekstrakurikuler ini.');
-        }
+    // Ambil semua pengguna yang mengikuti ekstrakurikuler tertentu
+    $listPeserta = Pengguna::where('id_ekstrakurikuler', $id)
+        ->when($nim, function ($query, $nim) {
+            return $query->where('nim', $nim);
+        })
+        ->select('nim', 'nama', 'email', 'telepon', 'role')
+        ->orderBy('nama', 'asc')
+        ->get();
 
-        // Eager load data peserta (warga) beserta detail yang dibutuhkan
-        // Asumsi relasi di model Ekstrakurikuler adalah 'pesertas()'
-        $ekstrakurikuler->load(['pesertas' => function ($query) {
-            $query->select('pengguna.nim', 'pengguna.nama', 'pengguna.email', 'pengguna.telepon') // Pilih kolom yang ingin ditampilkan
-                  ->orderBy('pengguna.nama', 'asc'); // Urutkan berdasarkan nama peserta
-        }]);
+    // Ambil data ekstrakurikuler jika ingin ditampilkan di view
+    $ekskul = Ekstrakurikuler::findOrFail($id);
 
-        return view('pj.ekstrakurikuler.peserta', [
-            'ekskul' => $ekstrakurikuler,
-            'listPeserta' => $ekstrakurikuler->pesertas,
-        ]);
-    }
+    return view('pj.ekstrakurikuler.peserta', [
+        'ekskul' => $ekskul,
+        'listPeserta' => $listPeserta,
+    ]);
+}
 }
