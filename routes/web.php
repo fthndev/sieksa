@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 // Import controller untuk dashboard (umum dan per role)
 use App\Http\Controllers\DashboardController; // Controller umum untuk /dashboard awal
 use App\Http\Controllers\Warga\DashboardController as WargaDashboardController;
+use App\Http\Controllers\Warga\EkstrakurikulerDetailController as WargaEkstrakurikulerController;
 use App\Http\Controllers\Musahil\DashboardController as MusahilDashboardController;
 use App\Http\Controllers\Musahil\ListWargaDidampingiController;
 use App\Http\Controllers\PJ\DashboardController as PjDashboardController;
@@ -39,7 +40,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('warga.')
         ->group(function () {
             Route::get('/dashboard', [WargaDashboardController::class, 'index'])->name('dashboard');
-            // Route lain khusus warga
+            // Route lain khusus warga\
+            Route::get('/ekstrakurikuler/{ekstrakurikuler}', [WargaEkstrakurikulerController::class, 'show'])
+              ->name('detail_ekstra');
+            Route::get('/daftar_orang/{ekskul}', function (Ekstrakurikuler $ekskul){
+                return view('warga.daftar_orang', ['ekskul' => $ekskul, 'orang' => $ekskul -> pesertas]);
+            }) ->name('daftar_orang_ekstra');
+            Route::get('/absensi/{pengguna:nim}', function(Pengguna $pengguna){
+                return view('warga.absensi', ['pengguna' => $pengguna]);    
+            }) ->name('absensi_ekstra');
+            Route::get('pendaftaran_ekstra/{ekskul}', [WargaEkstrakurikulerController::class, 'tambahekstra'])
+            ->name('pendaftaran_ekstra');
         });
 
     // Dashboard untuk Musahil
@@ -49,6 +60,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/dashboard', [MusahilDashboardController::class, 'index'])->name('dashboard');
             Route::get('/list-warga', [ListWargaDidampingiController::class, 'index'])->name('list-warga');
+            Route::get('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerDetailController::class, 'show'])
+              ->name('detail_ekstra');
+            Route::get('/daftar_orang/{ekskul}', function (Ekstrakurikuler $ekskul){
+                return view('musahil.daftar_orang', ['ekskul' => $ekskul, 'orang' => $ekskul -> pesertas]);
+            }) ->name('daftar_orang_ekstra');
+            Route::get('/absensi/{pengguna:nim}', function(Pengguna $pengguna){
+                return view('musahil.absensi', ['pengguna' => $pengguna]);    
+            }) ->name('absensi_ekstra');
+            Route::get('pendaftaran_ekstra/{ekskul}', [EkstrakurikulerDetailController::class, 'tambahekstra'])
+            ->name('pendaftaran_ekstra');
             // Route lain khusus musahil
         });
 
@@ -77,9 +98,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute untuk Menampilkan Detail Ekstrakurikuler
     // Parameter {ekstrakurikuler} akan di-resolve menggunakan Route Model Binding ke model Ekstrakurikuler
     // Pastikan model Ekstrakurikuler Anda sudah memiliki method getRouteKeyName() jika PK bukan 'id'
-    // atau gunakan binding eksplisit: {ekstrakurikuler:id_ekstrakulikuler}
-    Route::get('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerDetailController::class, 'show'])
-         ->name('ekstrakurikuler.detail'); // Nama route yang kita gunakan di view dashboard warga
+    // atau gunakan binding eksplisit: {ekstrakurikuler:id_ekstrakulikuler} // Nama route yang kita gunakan di view dashboard warga
 
 });
 

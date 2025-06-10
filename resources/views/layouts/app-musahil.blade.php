@@ -14,8 +14,10 @@
         {{-- Font Awesome CDN (jika tidak via NPM) --}}
         {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" /> --}}
         <style>[x-cloak] { display: none !important; }</style>
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
-    <body class="font-['Instrument_Sans'] antialiased" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
+    <body class="font-['Instrument_Sans'] antialiased" x-data="{ sidebarOpen: false, showModal: false, daftarUrl: '', detailModal : false, detailData : {} }" @keydown.escape.window="sidebarOpen = false">
         <div class="min-h-screen bg-slate-100 dark:bg-slate-900 md:flex">
 
             {{-- Sidebar Backdrop untuk Mobile --}}
@@ -47,7 +49,14 @@
                         </div>
                     </header>
                 @endisset
-
+                
+                @isset($navbar_ekstra)
+                    <nav class="bg-slate-100 dark:bg-slate-800 shadow">
+                        <div class="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                            {{$navbar_ekstra}}
+                        </div>
+                    </nav>                
+                @endisset
                 <main class="flex-grow p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
                 </main>

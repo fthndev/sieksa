@@ -1,13 +1,16 @@
 <?php
-namespace App\Http\Controllers;
-    use App\Models\Ekstrakurikuler; // Pastikan model Ekstrakurikuler di-import
-    use Illuminate\Http\Request;    // Bisa dihapus jika tidak digunakan di method show
-    use Illuminate\View\View;
-    use Illuminate\Support\Facades\Auth; // Untuk mendapatkan info pengguna yang login
 
-    class EkstrakurikulerDetailController extends Controller
-    {
-        /**
+namespace App\Http\Controllers\Warga;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Ekstrakurikuler;
+use App\Models\Pengguna;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+class EkstrakurikulerDetailController extends Controller
+{
+/**
          * Menampilkan halaman detail untuk ekstrakurikuler yang dipilih.
          *
          * @param  \App\Models\Ekstrakurikuler  $ekstrakurikuler  Instance model yang di-resolve oleh Route Model Binding
@@ -52,4 +55,28 @@ namespace App\Http\Controllers;
                 'isMengikutiSebagaiUtama' => $isMengikutiSebagaiUtama
         ]);
         }
-    }
+        public function tambahekstra(Ekstrakurikuler $ekskul){
+            $user = Auth::user();
+
+            if (!$user){
+                return redirect()->back()->with('error', 'Gagal: Pengguna tidak ditemukan');
+            }
+
+            if ($user->id_ekstrakurikuler){
+                return redirect()->back()->with('error', 'Gagal: Anda sudah mendaftar Ekstrakurikuler');
+            }
+
+            try {
+                $user->id_ekstrakurikuler = $ekskul->id_ekstrakurikuler;
+                $user->save();
+            } catch (\Exception $e) {
+                dd([
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+            }
+
+            return redirect()->route('warga.dashboard')->with('success', 'Berhasil mendaftar Ekstrakurikuler');
+        }
+
+}

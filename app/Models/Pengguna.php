@@ -15,7 +15,7 @@ use App\Models\Ekstrakurikuler; // <-- Di-uncomment atau ditambahkan
 class Pengguna extends Authenticatable
 {
     use HasFactory, Notifiable;
-
+    public $timestamps = false; 
     protected $table = 'pengguna';
     protected $primaryKey = 'nim';
     public $incrementing = false;
