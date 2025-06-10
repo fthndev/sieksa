@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\Ekstrakurikuler;
+use App\Models\Pengguna;
 use Illuminate\Support\Facades\Route;
 
 // Import controller untuk dashboard (umum dan per role)
@@ -80,7 +82,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/dashboard', [PjDashboardController::class, 'index'])->name('dashboard');
             Route::get("/ekstrakurikuler/peserta/{id}", [PJEkstrakurikulerController::class, 'lihatpeserta'])->name('lihatpeserta');
-            route::get('/ekstrakurikuler/absensi/{id}', [PJAbsensiController::class, 'lihatabsensi'])->name('absensi');
+            Route::get('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerDetailController::class, 'show'])
+            ->name('detail_ekstra');
+          Route::get('/daftar_orang/{ekskul}', function (Ekstrakurikuler $ekskul){
+              return view('pj.daftar_orang', ['ekskul' => $ekskul, 'orang' => $ekskul -> pesertas]);
+          }) ->name('daftar_orang_ekstra');
+            Route::get('/ekstrakurikuler/absensi/{id}', [PJAbsensiController::class, 'lihatabsensi'])->name('absensi');
             // Route::get('/ekstrakurikuler/create', [PJEkstrakurikulerController::class, 'create'])->name('ekstrakurikuler.create'); // <-- INI RUTE YANG ANDA BUTUHKAN
             // Route::post('/ekstrakurikuler', [PJEkstrakurikulerController::class, 'store'])->name('ekstrakurikuler.store');
             // Anda mungkin juga memerlukan rute untuk index, edit, update, destroy ekstrakurikuler di sini nanti

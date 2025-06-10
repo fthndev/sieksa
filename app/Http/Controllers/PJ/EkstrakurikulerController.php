@@ -16,9 +16,10 @@ class EkstrakurikulerController extends Controller
 
     // Ambil semua pengguna yang mengikuti ekstrakurikuler tertentu
     $listPeserta = Pengguna::where('id_ekstrakurikuler', $id)
-        ->when($nim, function ($query, $nim) {
-            return $query->where('nim', $nim);
-        })
+    ->whereIn('role', ['warga', 'musahil']) // Tambahan filter role
+    ->when($nim, function ($query, $nim) {
+        return $query->where('nim', $nim);
+    })
         ->select('nim', 'nama', 'email', 'telepon', 'role')
         ->orderBy('nama', 'asc')
         ->get();

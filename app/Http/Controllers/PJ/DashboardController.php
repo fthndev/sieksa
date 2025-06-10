@@ -18,7 +18,7 @@ class DashboardController extends Controller
     {
         /** @var \App\Models\Pengguna $user */
         $user = Auth::user(); // Mendapatkan instance Pengguna (PJ) yang sedang login
-
+        $user_id_ekstrakurikuler = $user->id_ekstrakurikuler;
         $listEkstrakurikulerDikelola = collect(); // Inisialisasi sebagai koleksi kosong
         $statistik = [
             'totalEkstrakurikuler' => 0,
@@ -45,8 +45,8 @@ class DashboardController extends Controller
 
             // Contoh mengambil total warga dan musahil secara keseluruhan (bisa disesuaikan)
             // Jika PJ hanya boleh melihat statistik terkait ekskul yang dia kelola, logikanya akan lebih kompleks
-            $statistik['totalWarga'] = Pengguna::where('role', 'warga')->count();
-            $statistik['totalMusahil'] = Pengguna::where('role', 'musahil')->count();
+            $statistik['totalWarga'] = Pengguna::where('role', 'warga')->where('id_ekstrakurikuler', $user_id_ekstrakurikuler)->count();
+            $statistik['totalMusahil'] = Pengguna::where('role', 'musahil')->where('id_ekstrakurikuler', $user_id_ekstrakurikuler)->count();
 
         }
 
