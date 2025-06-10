@@ -9,7 +9,7 @@
             </h4>
         </div>
     </x-slot>
-
+fathan
     <x-slot name="navbar_ekstra">
             <div class="flex justify-center sm:justify-start space-x-4 pt-1 gap-5">
                 <div class="w-20 {{ request()->routeIs('warga.detail_ekstra') ? 'border-b-4 border-b-blue-600 rounded-b-sm' : '' }} flex justify-center p-1">
