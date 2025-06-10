@@ -9,7 +9,7 @@ class Absensi extends Model
     protected $table = 'absensi';
     protected $primaryKey = 'id_absensi';
 
-    protected $fillable = ['id_ekstrakulikuler', 'tanggal', 'pertemuan', 'materi'];
+    protected $fillable = ['id_ekstrakulikuler', 'tanggal', 'pertemuan', 'materi', 'status', 'keterangan'];
 
     public function detailAbsensi()
     {

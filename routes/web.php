@@ -88,6 +88,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
               return view('pj.daftar_orang', ['ekskul' => $ekskul, 'orang' => $ekskul -> pesertas]);
           }) ->name('daftar_orang_ekstra');
             Route::get('/ekstrakurikuler/absensi/{id}', [PJAbsensiController::class, 'lihatabsensi'])->name('absensi');
+            Route::get('/ekstrakurikuler/tambah/{id}', [PJAbsensiController::class, 'tambahabsensi'])->name('tambahabsensi');
             // Route::get('/ekstrakurikuler/create', [PJEkstrakurikulerController::class, 'create'])->name('ekstrakurikuler.create'); // <-- INI RUTE YANG ANDA BUTUHKAN
             // Route::post('/ekstrakurikuler', [PJEkstrakurikulerController::class, 'store'])->name('ekstrakurikuler.store');
             // Anda mungkin juga memerlukan rute untuk index, edit, update, destroy ekstrakurikuler di sini nanti
