@@ -49,7 +49,7 @@ class AbsensiController extends Controller
             // Muat relasi 'ekstrakurikuler' dari sesi absensi ini
             'ekstrakurikuler',
             // Muat relasi 'detailAbsensi', dan untuk setiap detail, muat juga relasi 'pengguna' nya
-            'ekstrakurikuler.pengguna' => function ($query) {
+            'detailabsensi.pengguna' => function ($query) {
                 // Urutkan daftar peserta berdasarkan nama secara ascending (A-Z)
                 $query->orderBy('nama', 'asc');
             }
