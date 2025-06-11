@@ -12,17 +12,11 @@
 
     <x-slot name="navbar_ekstra">
             <div class="flex justify-center sm:justify-start space-x-4 pt-1 gap-5">
-                <div class="w-20 {{ request()->routeIs('warga.detail_ekstra') ? 'border-b-4 border-b-blue-600 rounded-b-sm' : '' }} flex justify-center p-1">
-                    <a href="{{ route('warga.detail_ekstra', ['ekstrakurikuler' => $ekskul->id_ekstrakurikuler]) }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600">Forum</a>
-                </div>
-                <div class="w-20 {{ request()->routeIs('warga.absensi_ekstra') ? 'border-b-4 border-b-blue-600 rounded-b-sm' : '' }} flex justify-center p-1">
-                    @php
-                        $user_nim = Auth::user()->nim;
-                    @endphp
-                    <a href="{{ route('warga.absensi_ekstra', ['pengguna' => $user_nim]) }}" class="text-sm font-medium {{request()->routeIs('absensi.ekstra') ? 'text-blue-600 font-bold' : 'text-gray-700'}} text-gray-700 dark:text-gray-300 hover:text-blue-600">Absensi</a>
-                </div>
-                <div class="w-20 {{ request()->routeIs('warga.daftar_orang_ekstra') ? 'border-b-4 border-b-blue-600 rounded-b-sm' : '' }} flex justify-center p-1">
-                    <a href="{{ route('warga.daftar_orang_ekstra', ['ekskul' => $ekskul->id_ekstrakurikuler]) }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600">Orang</a>
+                <div class="w-20 {{ request()->routeIs('pj.detail_ekstra') ? 'border-b-4 border-b-blue-600 rounded-b-sm' : '' }} flex justify-center p-1">
+                    <a href="{{ route('pj.detail_ekstra', ['ekstrakurikuler' => $ekskul->id_ekstrakurikuler]) }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600">Forum</a>
+                </div>  
+                <div class="w-20 {{ request()->routeIs('pj.daftar_orang_ekstra') ? 'border-b-4 border-b-blue-600 rounded-b-sm' : '' }} flex justify-center p-1">
+                    <a href="{{ route('pj.daftar_orang_ekstra', ['ekskul' => $ekskul->id_ekstrakurikuler]) }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600">Orang</a>
                 </div>
             </div>
     </x-slot>

@@ -2,7 +2,7 @@
 
 {{-- Langsung gunakan layout khusus musahil. --}}
 {{-- Asumsi bahwa route ke halaman ini sudah dilindungi agar hanya musahil yang bisa mengakses. --}}
-<x-app-musahil-layout>
+<x-app-layout>
 
     {{-- Slot untuk Header Halaman --}}
     <x-slot name="header">
@@ -102,4 +102,4 @@
         </div>
     </div>
 
-</x-app-musahil-layout>
+</x-app-layout>

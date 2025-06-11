@@ -1,19 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Musahil;
+namespace App\Http\Controllers\pj;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; // Import DB Facade
 use Illuminate\View\View;
-use App\Models\User; // Asumsi model user Anda adalah App\Models\User, tapi kita akan pakai tabel 'pengguna' langsung
+use App\Models\User;
 
-class ListWargaDidampingiController extends Controller
+class ListWargaDidampingPj extends Controller
 {
-    /**
-     * Menampilkan daftar warga yang didampingi oleh musahil yang sedang login.
-     */
     public function index(): View
     {
         /** @var User $loggedInUser */
@@ -47,6 +44,6 @@ class ListWargaDidampingiController extends Controller
 
         // Mengirimkan koleksi data ke view.
         // Nama view tetap 'musahil.list-warga'
-        return view('musahil.list-warga', ['list_dampingi' => $list_dampingi]);
+        return view('pj.list-warga', ['list_dampingi' => $list_dampingi]);
     }
 }

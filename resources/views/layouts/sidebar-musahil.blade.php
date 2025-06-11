@@ -1,59 +1,48 @@
 {{-- resources/views/layouts/sidebar-musahil.blade.php --}}
 <aside
-    class="w-64 bg-slate-100 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col
-           fixed inset-y-0 left-0 z-40 {{-- Mobile: Fixed overlay, z-index di atas backdrop --}}
-           transform transition-transform duration-300 ease-in-out
-           md:sticky md:top-0 md:h-screen md:overflow-y-auto md:shrink-0 md:translate-x-0 {{-- Desktop: Sticky atau bagian normal dari flex, selalu terlihat --}}"
-    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'" {{-- Kontrol visibility --}}
-    x-cloak>
+    x-cloak
+    class="fixed inset-y-0 left-0 z-40 flex h-screen w-64 flex-col border-r border-slate-200 bg-slate-100 transition-transform duration-300 ease-in-out dark:border-slate-700 dark:bg-slate-800
+           md:relative md:translate-x-0"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
 
-    <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+    {{-- Header Sidebar --}}
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-700">
         <a href="{{ route('dashboard') }}" class="text-xl font-bold text-red-700 dark:text-red-500">
             SIEKSAd Panel
         </a>
-        {{-- Tombol Close Sidebar (hanya untuk mobile) --}}
-        <button @click="sidebarOpen = false" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 p-1 -mr-1">
+        <button @click="sidebarOpen = false" class="-mr-1 p-1 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 md:hidden">
             <i class="fas fa-times text-xl"></i>
             <span class="sr-only">Tutup menu</span>
         </button>
     </div>
 
-    <nav class="flex-grow p-4 space-y-1 overflow-y-auto">
-        {{-- ... (Konten navigasi sidebar Anda yang sudah ada tetap di sini) ... --}}
-        {{-- Contoh: Dashboard Link --}}
+    {{-- Navigasi Utama --}}
+    <nav class="flex-grow space-y-1 overflow-y-auto p-4">
         @php
+            // Variabel untuk styling agar lebih rapi
             $currentRoute = request()->route() ? request()->route()->getName() : '';
-            $isDashboardActive = Str::contains($currentRoute, 'dashboard');
-            $dashboardLinkClasses = 'flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
-            $dashboardLinkClasses .= $isDashboardActive
-                ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 font-semibold'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100';
-            $dashboardIconClasses = $isDashboardActive
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
+            $baseLinkClass = 'flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group';
+            $activeLinkClass = 'bg-red-100 dark:bg-red-800/60 text-red-700 dark:text-red-400 font-semibold';
+            $inactiveLinkClass = 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+            $activeIconClass = 'text-red-600 dark:text-red-400';
+            $inactiveIconClass = 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
         @endphp
-        <a href="{{ route('dashboard') }}"
-           class="{{ $dashboardLinkClasses }}"
-           @click="if(window.innerWidth < 768) sidebarOpen = false" {{-- Tutup sidebar di mobile saat link diklik --}}>
-            <i class="fas fa-tachometer-alt w-5 h-5 me-3 {{ $dashboardIconClasses }} transition-colors duration-150"></i>
+
+        {{-- 1. Link Dashboard Musahil --}}
+        @php $isDashboardActive = request()->routeIs('musahil.dashboard'); @endphp
+        <a href="{{ route('musahil.dashboard') }}"
+           class="{{ $baseLinkClass }} {{ $isDashboardActive ? $activeLinkClass : $inactiveLinkClass }}"
+           @click="if(window.innerWidth < 768) sidebarOpen = false">
+            <i class="fas fa-tachometer-alt me-3 w-5 text-center {{ $isDashboardActive ? $activeIconClass : $inactiveIconClass }}"></i>
             Dashboard
         </a>
 
-        {{-- Warga Didampingi Link --}}
-        @php
-            $isListWargaActive = ($currentRoute == 'musahil.list-warga'); // Sesuaikan dengan nama route Anda
-            $listWargaLinkClasses = 'flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
-            $listWargaLinkClasses .= $isListWargaActive
-                ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 font-semibold'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100';
-            $listWargaIconClasses = $isListWargaActive
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
-        @endphp
+        {{-- 2. Link Warga Didampingi --}}
+        @php $isListWargaActive = request()->routeIs('musahil.list-warga'); @endphp
         <a href="{{ route('musahil.list-warga') }}"
-           class="{{ $listWargaLinkClasses }}"
+           class="{{ $baseLinkClass }} {{ $isListWargaActive ? $activeLinkClass : $inactiveLinkClass }}"
            @click="if(window.innerWidth < 768) sidebarOpen = false">
-            <i class="fas fa-users w-5 h-5 me-3 {{ $listWargaIconClasses }} transition-colors duration-150"></i> {{-- Menggunakan ikon fa-users --}}
+            <i class="fas fa-users me-3 w-5 text-center {{ $isListWargaActive ? $activeIconClass : $inactiveIconClass }}"></i>
             Warga Didampingi
         </a>
 
@@ -128,31 +117,26 @@
                 @endif
             </div>
         </div>
-        
-         {{-- ... Sisa menu sidebar Anda ... --}}
-    {{-- Debug: --}}
-    <div class="text-xs text-slate-400 px-4">
-        Route: {{ $currentRoute }}<br>
-        Ekstrakurikuler aktif? {{ $isEkstrakurikulerActive ? 'Ya' : 'Tidak' }}
-    </div>
+
+        {{-- 3. Link Lakukan Absensi --}}
+        @php $isAbsensiActive = request()->routeIs('absensi.scan'); @endphp
+        <a href="{{ route('musahil.absensi_ekstra') }}"
+           class="{{ $baseLinkClass }} {{ $isAbsensiActive ? $activeLinkClass : $inactiveLinkClass }}"
+           @click="if(window.innerWidth < 768) sidebarOpen = false">
+            <i class="fas fa-camera me-3 w-5 text-center {{ $isAbsensiActive ? $activeIconClass : $inactiveIconClass }}"></i>
+            Lakukan Absensi
+        </a>
+
     </nav>
 
-    <div class="p-4 border-t border-slate-200 dark:border-slate-700 mt-auto shrink-0">
-        @php
-            $isPengaturanActive = ($currentRoute == 'settings.index'); // Ganti dengan nama route Anda
-            $pengaturanLinkClasses = 'flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
-            $pengaturanLinkClasses .= $isPengaturanActive
-                ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 font-semibold'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100';
-            $pengaturanIconClasses = $isPengaturanActive
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
-        @endphp
-        <a href="#" {{-- Ganti dengan route pengaturan Anda --}}
-           class="{{ $pengaturanLinkClasses }}"
-            @click="if(window.innerWidth < 768) sidebarOpen = false">
-            <i class="fas fa-cog w-5 h-5 me-3 {{ $pengaturanIconClasses }} transition-colors duration-150"></i>
-            Pengaturan
+    {{-- Bagian Profil & Pengaturan di Bawah --}}
+    <div class="mt-auto shrink-0 border-t border-slate-200 p-4 dark:border-slate-700">
+         @php $isPengaturanActive = request()->routeIs('profile.edit'); @endphp
+         <a href="{{ route('profile.edit') }}"
+           class="{{ $baseLinkClass }} {{ $isPengaturanActive ? $activeLinkClass : $inactiveLinkClass }}"
+           @click="if(window.innerWidth < 768) sidebarOpen = false">
+            <i class="fas fa-cog me-3 w-5 text-center {{ $isPengaturanActive ? $activeIconClass : $inactiveIconClass }}"></i>
+            Profil & Pengaturan
         </a>
     </div>
 </aside>

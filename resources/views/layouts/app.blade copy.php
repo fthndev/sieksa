@@ -26,7 +26,7 @@
 {{--  
         <script src=".../qrcode-generator/qrcode.js"></script> --}}
     </head>
-    <body class="font-['Instrument_Sans'] antialiased" x-data="{ sidebarOpen: false, showModal: false, daftarUrl: '', detailModal : false, detailData : {} }" @keydown.escape.window="sidebarOpen = false">
+    <body class="font-['Instrument_Sans'] antialiased" x-data="{ sidebarOpen: false }">
         
         <div class="min-h-screen bg-slate-100 dark:bg-slate-900 md:flex">
 
@@ -37,24 +37,15 @@
                 @include('layouts.navigation')
 
                 @isset($header)
-                        <header class="bg-white dark:bg-slate-800 shadow">
-                            <div class="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endisset
-                @isset($navbar_ekstra)
-                        <nav class="bg-slate-100 dark:bg-slate-800 shadow">
-                            <div class="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                                {{$navbar_ekstra}}
-                            </div>
-                        </nav>                
+                    <header class="bg-white dark:bg-slate-800 shadow shrink-0">
+                        
+                        {{-- ... (kode header dan navbar_ekstra Anda) ... --}}
+                    </header>
                 @endisset
 
                 <main class="flex-grow p-4 sm:p-6 lg:px-8">
                     {{ $slot }}
                 </main>
-                
 
                 @include('layouts.footer')
             </div>

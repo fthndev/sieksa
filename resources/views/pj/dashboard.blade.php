@@ -20,6 +20,21 @@
                     </p>
                 </div>
             </div>
+            <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-md sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center">
+                        <i class="fas fa-rocket me-3 opacity-80"></i>
+                        Aksi Cepat Lainnya
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                         <a href="{{route('pj.absensi.index')}}" class="flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-700/50 hover:bg-red-50 dark:hover:bg-red-700/20 rounded-lg transition-colors duration-150 group border border-slate-200 dark:border-slate-700">
+                            <i class="fas fa-calendar-check fa-2x mb-2 text-red-600 dark:text-red-500 group-hover:text-red-700 dark:group-hover:text-red-400"></i>
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-red-700 dark:group-hover:text-red-400 text-center">Kelola Absensi Warga</span>
+                        </a>
+                        {{-- Tombol aksi lainnya --}}
+                    </div>
+                </div>
+            </div>
 
             {{-- Kartu Statistik Ringkasan --}}
             @if(isset($statistik))
@@ -62,13 +77,13 @@
                             <i class="fas fa-cogs me-3 opacity-80"></i>
                             Ekstrakurikuler yang Anda Kelola
                         </h3>
-                        {{-- Tombol ke halaman absensi --}}
+                        {{-- Tombol ke halaman absensi
                         @if($listEkstrakurikulerDikelola && $listEkstrakurikulerDikelola->isNotEmpty())
                             <a href="{{ route('pj.absensi', ['id' => $listEkstrakurikulerDikelola->first()->id_ekstrakurikuler]) }}"
                                class="inline-flex items-center px-4 py-2 bg-red-600 dark:bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white dark:text-slate-100 uppercase tracking-widest hover:bg-red-700 dark:hover:bg-red-600 focus:bg-red-700 dark:focus:bg-red-600 active:bg-red-800 dark:active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition ease-in-out duration-150">
                                 <i class="fas fa-list-check me-2"></i> Lihat Absensi
                             </a>
-                        @endif
+                        @endif --}}
                     </div>
 
                     @if ($listEkstrakurikulerDikelola && $listEkstrakurikulerDikelola->count() > 0)

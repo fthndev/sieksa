@@ -41,73 +41,34 @@
             Dashboard
         </a>
 
+        {{-- 2. Dropdown Ekstrakurikuler (Tidak Diubah) --}}
         @php
             $isEkstrakurikulerActive = Str::contains($currentRoute, 'ekstra');
-            $ekstrakurikulerLinkClasses = 'w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ';
-            $ekstrakurikulerLinkClasses .= $isEkstrakurikulerActive
-                ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 font-semibold'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100';
-
-            $ekstrakurikulerIconClasses = $isEkstrakurikulerActive
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200';
+            $ekstrakurikulerLinkClasses = 'w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 group ' . ($isEkstrakurikulerActive ? 'bg-slate-200 dark:bg-slate-700' : $inactiveLinkClass);
+            $ekstrakurikulerIconClasses = $isEkstrakurikulerActive ? $activeIconClass : $inactiveIconClass;
         @endphp
-
-        <div x-data="{ 
-                open: {{ $isEkstrakurikulerActive ? 'true' : 'false' }},
-                // Jika aktif, lock supaya dropdown tidak bisa ditutup
-                toggle() {
-                    if (!{{ $isEkstrakurikulerActive ? 'true' : 'false' }}) {
-                        this.open = !this.open;
-                    }
-                }
-            }"
-        >
-            <button @click="toggle()" class="{{ $ekstrakurikulerLinkClasses }} text-left">
-                <span class="flex items-center">
+        <div x-data="{ open: {{ $isEkstrakurikulerActive ? 'true' : 'false' }} }">
+            <button @click="open = !open" class="{{ $ekstrakurikulerLinkClasses }} text-left">
+                <span class="flex items-center flex-grow">
                     <i class="fas fa-puzzle-piece w-5 h-5 me-3 {{ $ekstrakurikulerIconClasses }} transition-colors duration-150"></i>
                     Ekstrakurikuler
                 </span>
-                <i class="fas w-4 h-4 transform transition-transform duration-200 text-slate-500 group-hover:text-slate-700"
-                :class="{'fa-chevron-down': !open, 'fa-chevron-up': open}"></i>
+                <i class="fas w-4 h-4 transform transition-transform duration-200" :class="{'fa-chevron-down': !open, 'fa-chevron-up': open}"></i>
             </button>
-
             
-            <div x-show="open" x-transition ... class="mt-1 ms-4 ps-3 border-l-2 ..." x-cloak>
-                @php
-                    $user = Auth::user();
-                    $ekstra = $user->ekstrakurikuler;
-                @endphp
-
-                @if ($ekstra && $ekstra->id_ekstrakurikuler != '' && $user->id_ekstrakurikuler != '')
-                    @if ($ekstra)
-                        @php
-                            $data_ekstra = [[
-                                'nama' => $ekstra->nama_ekstra,
-                                'icon' => 'fa-cogs',
-                                'route_name' => 'detail_ekstra', 
-                                'param' => $ekstra->id_ekstrakurikuler
-                            ]];
-                        @endphp
-
-                        @foreach($data_ekstra as $kelas)
-                            @php
-                                $isKelasActive = Str::contains($currentRoute, 'ekstra');
-                                $kelasLinkClasses = 'flex items-center w-full ps-3 pe-2 py-2 rounded-md text-sm transition-colors duration-150 group ';
-                                $kelasLinkClasses .= $isKelasActive
-                                    ? 'bg-red-100 dark:bg-red-700/20 text-red-700 dark:text-red-400 border-l-4 border-red-600 dark:border-red-500 -ml-[14px] pl-[10px] font-semibold'
-                                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100';
-                                $kelasIconClasses = $isKelasActive
-                                    ? 'text-red-600 dark:text-red-400'
-                                    : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300';
-                            @endphp
-                            <a href="{{ route($user->role.'.'.$kelas['route_name'], $kelas['param']) }}"
-                            class="{{ $kelasLinkClasses }}"
-                            @click="if(window.innerWidth < 768) sidebarOpen = false">
-                                <i class="fas {{ $kelas['icon'] }} w-4 h-4 me-2.5 {{ $kelasIconClasses }} transition-colors duration-150 opacity-80"></i>
-                                {{ ucwords($kelas['nama']) }}
-                            </a>
-                        @endforeach
+            <div x-show="open" x-transition class="mt-1 ms-4 ps-4 border-l-2 border-slate-300 dark:border-slate-600 space-y-1" x-cloak>
+                @php $user = Auth::user(); $ekstra = $user->ekstrakurikuler; @endphp
+                @if ($ekstra)
+                    @php
+                        $userRolePrefix = $user->role;
+                        $detailRouteName = $userRolePrefix . '.detail_ekstra';
+                    @endphp
+                    @if(Route::has($detailRouteName))
+                        <a href="{{ route($detailRouteName, ['ekstrakurikuler' => $ekstra]) }}"
+                           class="block px-3 py-2 rounded-md text-sm {{ request()->routeIs($detailRouteName) ? 'font-semibold text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100' }}"
+                           @click="if(window.innerWidth < 768) sidebarOpen = false">
+                            {{ ucwords($ekstra->nama_ekstra) }}
+                        </a>
                     @endif
                 @endif
             </div>
@@ -130,14 +91,6 @@
         @endif
 
         @if(Auth::user()->hasRole('pj'))
-            @php $isListWargaActive = request()->routeIs('pj.list-warga'); @endphp
-            <a href="{{ route('pj.list-warga') }}"
-            class="{{ $baseLinkClass }} {{ $isListWargaActive ? $activeLinkClass : $inactiveLinkClass }}"
-            @click="if(window.innerWidth < 768) sidebarOpen = false">
-                <i class="fas fa-users me-3 w-5 text-center {{ $isListWargaActive ? $activeIconClass : $inactiveIconClass }}"></i>
-                Warga Didampingi
-            </a>
-
             {{-- Untuk PJ, link ini bisa mengarah ke halaman index untuk memilih ekskul mana yang akan dikelola absensinya --}}
             {{-- Atau Anda bisa membuat dropdown baru seperti menu 'Manajemen PJ' di respons saya sebelumnya --}}
             @php $isKelolaAbsensiActive = request()->routeIs('pj.absensi.index'); @endphp
