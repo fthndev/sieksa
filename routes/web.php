@@ -20,6 +20,8 @@ use App\Http\Controllers\Musahil\EkstrakurikulerDetailController as MusahilEkstr
 use App\Http\Controllers\PJ\ListWargaDidampingPj as ListWargaDidampingiControllerPJ;
 use App\Http\Controllers\Admin\EkstrakurikulerController as AdminEkstrakurikulerController;
 use App\Http\Controllers\Admin\UserController as UserController;
+use App\Http\Controllers\Admin\PenggunaController as PenggunaController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 // |--------------------------------------------------------------------------
 // | Web Routes
@@ -100,29 +102,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
               return view('pj.daftar_orang', ['ekskul' => $ekskul, 'orang' => $ekskul -> pesertas]);
                 }) ->name('daftar_orang_ekstra');
             });
-        Route::middleware('role:admin')
-        ->prefix('admin')
-            ->name('admin.')
-            ->group(function () {
-                Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-                Route::get('/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'index'])->name('ekstrakurikuler.index');
-                 // Halaman untuk menampilkan & mengelola anggota
-                Route::get('/ekstrakurikuler/{ekstrakurikuler}/kelola-anggota', [AdminEkstrakurikulerController::class, 'showMembers'])->name('ekstrakurikuler.members');
-                Route::post('/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');
+    Route::middleware('role:admin')
+    ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+            Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'index'])->name('ekstrakurikuler.index');
+                // Halaman untuk menampilkan & mengelola anggota
+            Route::get('/ekstrakurikuler/{ekstrakurikuler}/kelola-anggota', [AdminEkstrakurikulerController::class, 'showMembers'])->name('ekstrakurikuler.members');
+            Route::post('/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');
 
-                // Aksi untuk mengeluarkan anggota dari ekskul
-                Route::delete('/ekstrakurikuler/members/{pengguna}/remove', [AdminEkstrakurikulerController::class, 'removeMember'])->name('ekstrakurikuler.members.remove');
+            // Aksi untuk mengeluarkan anggota dari ekskul
+            Route::delete('/ekstrakurikuler/members/{pengguna}/remove', [AdminEkstrakurikulerController::class, 'removeMember'])->name('ekstrakurikuler.members.remove');
 
-                // Aksi untuk mempromosikan anggota menjadi PJ
-                Route::post('/ekstrakurikuler/{ekstrakurikuler}/assign-pj', [AdminEkstrakurikulerController::class, 'assignPj'])->name('ekstrakurikuler.members.assign');
+            // Aksi untuk mempromosikan anggota menjadi PJ
+            Route::post('/ekstrakurikuler/{ekstrakurikuler}/assign-pj', [AdminEkstrakurikulerController::class, 'assignPj'])->name('ekstrakurikuler.members.assign');
 
-                // Aksi untuk mencabut status PJ
-                Route::post('/ekstrakurikuler/{ekstrakurikuler}/revoke-pj', [AdminEkstrakurikulerController::class, 'revokePj'])->name('ekstrakurikuler.members.revoke');
-                // Tambahkan rute lain untuk manajemen oleh admin di sini nanti
-                // Contoh: Route::resource('/users', AdminUserController::class);
-                Route::get('/users', [UserController::class, 'index'])->name('users.index');
-                Route::delete('/users/{pengguna}', [UserController::class, 'destroy'])->name('users.destroy');
-        });    
+            // Aksi untuk mencabut status PJ
+            Route::post('/ekstrakurikuler/{ekstrakurikuler}/revoke-pj', [AdminEkstrakurikulerController::class, 'revokePj'])->name('ekstrakurikuler.members.revoke');
+            // Tambahkan rute lain untuk manajemen oleh admin di sini nanti
+            // Contoh: Route::resource('/users', AdminUserController::class);
+            Route::get('/users', [UserController::class, 'index'])->name('users.index');
+            Route::delete('/users/{pengguna}', [UserController::class, 'destroy'])->name('users.destroy');
+                    // Rute untuk impor dan CRUD Pengguna
+            Route::post('/pengguna/import', [AdminPenggunaController::class, 'import'])->name('pengguna.import');
+            Route::resource('/pengguna', PenggunaController::class)->except(['show']);
+    });    
 
     // Rute Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

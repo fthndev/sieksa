@@ -15,7 +15,7 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Pengguna::with('akun')->where('role', '!=', 'admin');
+        $query = Pengguna::whereHas('akun')->where('role', '!=', 'admin');
 
         // Logika Pencarian (Search)
         if ($request->has('search') && $request->search != '') {
@@ -42,17 +42,24 @@ class UserController extends Controller
      */
     public function destroy(Pengguna $pengguna): RedirectResponse
     {
-        // Otorisasi: Pastikan admin tidak bisa menghapus dirinya sendiri
+        // Otorisasi: Pastikan admin tidak bisa menghapus akunnya sendiri
         if (auth()->user()->nim == $pengguna->nim) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        // Hapus akun terkait (jika ada) dan data pengguna akan ikut terhapus
-        // karena ON DELETE CASCADE di database
-        optional($pengguna->akun)->delete();
-        $pengguna->delete();
+        // --- PERBAIKAN LOGIKA SESUAI PERMINTAAN ANDA ---
 
+        // 1. Cari akun yang berelasi dengan pengguna ini melalui relasi 'akun'
+        $akun = $pengguna->akun;
 
-        return back()->with('success', "Akun untuk {$pengguna->nama} berhasil dihapus.");
+        // 2. Jika akunnya ada, hapus.
+        if ($akun) {
+            $akun->delete(); // Ini hanya akan menghapus record dari tabel 'akun'
+
+            return back()->with('success', "Akun untuk pengguna '{$pengguna->nama}' berhasil dihapus. Pengguna ini sekarang tidak bisa login.");
+        } else {
+            // 3. Jika akunnya memang tidak ada, beri pesan informasi.
+            return back()->with('info', "Pengguna '{$pengguna->nama}' memang belum memiliki akun untuk dihapus.");
+        }
     }
 }
