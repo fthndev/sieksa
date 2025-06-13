@@ -5,16 +5,20 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-1">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+        <div class="h-[50px] p-4 space-y-4 z-[100]">
             {{-- Notifikasi Sukses --}}
             @if(session('status'))
-            <div role="alert" class="alert alert-success shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span>{{ session('status') }}</span>
+            <div id="alert-success" role="alert" class="alert alert-success shadow-lg mb-6 opacity-0 transition-opacity duration-500 ease-in-out">
+                <div>
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ session('status') }}</span>
+                </div>
             </div>
             @endif
+        </div>
 
             @forelse ($listEkstrakurikulerDikelola as $ekskul)
                 {{-- Setiap card ekstrakurikuler memiliki state Alpine.js-nya sendiri --}}
@@ -58,7 +62,7 @@
                                                     <button type="submit" class="btn btn-sm btn-primary">
                                                         <i class="fas fa-upload"></i> Upload
                                                     </button>
-                                                    @if($sesi->path)
+                                                    @if($sesi->path)  
                                                         <br>
                                                         <a href="{{ Storage::url($sesi->path) }}" target="_blank" class="btn btn-sm btn-info mt-1">
                                                             <i class="fas fa-download"></i> Download
@@ -172,6 +176,23 @@
                     }
                 }));
             });
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const alertBox = document.getElementById('alert-success');
+                if (alertBox) {
+                    setTimeout(() => {
+                        alertBox.classList.remove('opacity-0');
+                        alertBox.classList.add('opacity-100');
+                    }, 100);
+
+                    setTimeout(() => {
+                        alertBox.classList.add('opacity-0'); // untuk animasi fade out
+                        setTimeout(() => alertBox.remove(), 500); // hapus elemen setelah fade out
+                    }, 2000); // tampil selama 3 detik
+                }
+            });
+
         </script>
     @endpush
 </x-app-layout>

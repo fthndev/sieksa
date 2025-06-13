@@ -229,7 +229,7 @@ class AbsensiController extends Controller
         $absensi->path = $path;
         $absensi->save();
     
-        return redirect()->back()->with('success', 'File materi berhasil diunggah.');
+        return back()->with('status', 'File materi berhasil diunggah.');
     }
     
 
