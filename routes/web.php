@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/list-warga', [ListWargaDidampingiControllerPJ::class, 'index'])->name('list-warga');
             // routes/web.php
             Route::post('/pj/absensi/{id}/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
+            Route::put('/pj/dashboard/{id}', [PjDashboardController::class, 'updateJadwal'])->name('dashboards');
             // Rute CRUD Ekstrakurikuler Anda yang lain
             Route::get('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerDetailController::class, 'show'])
             ->name('detail_ekstra');
