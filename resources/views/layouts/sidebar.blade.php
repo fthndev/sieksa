@@ -148,6 +148,35 @@
                 Kelola Absensi
             </a>
         @endif
+        @if($user->hasRole('admin'))
+            @php $isManajemenActive = Str::startsWith($currentRoute, 'admin.'); @endphp
+            <div class="pt-2">
+                <h3 class="px-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Manajemen Sistem</h3>
+                <div class="mt-2 space-y-1">
+                    {{-- Ganti href dengan route manajemen yang sesuai nanti --}}
+                    <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-users-cog me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Pengguna
+                    </a>
+                    <a href="{{route('admin.ekstrakurikuler.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-puzzle-piece me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Ekstrakurikuler
+                    </a>
+                    <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-calendar-alt me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Jadwal
+                    </a>
+                    <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-book-open me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Materi
+                    </a>
+                     <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-clipboard-list me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Absensi
+                    </a>
+                </div>
+            </div>
+        @endif
         
         {{-- ... Sisa menu sidebar Anda seperti Pengaturan ... --}}
     </nav>
