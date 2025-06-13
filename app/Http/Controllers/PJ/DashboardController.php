@@ -57,6 +57,20 @@ class DashboardController extends Controller
             'statistik' => $statistik, // Kirim data statistik ke view
         ]);
     }
+    public function updateJadwal(Request $request, $id)
+{
+    $request->validate([
+        'hari' => 'required|string',
+        'jam' => 'required',
+    ]);
+
+    $ekskul = Ekstrakurikuler::findOrFail($id);
+    $ekskul->hari = $request->hari;
+    $ekskul->jam = $request->jam;
+    $ekskul->save();
+
+    return back()->with('status', 'Jadwal berhasil diperbarui!');
+}
 
     // Anda bisa menambahkan method lain di sini untuk aksi-aksi spesifik PJ
     // Misalnya:

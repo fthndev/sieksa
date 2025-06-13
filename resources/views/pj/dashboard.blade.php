@@ -89,19 +89,39 @@
                     @if ($listEkstrakurikulerDikelola && $listEkstrakurikulerDikelola->count() > 0)
                         <div class="space-y-6">
                             @foreach ($listEkstrakurikulerDikelola as $ekskul)
-                                <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                                    <div class="flex flex-col sm:flex-row justify-between items-start">
-                                        <div>
-                                            <h4 class="text-md font-semibold text-slate-800 dark:text-slate-100">{{ $ekskul->nama_ekstra }}</h4>
-                                            <p class="text-xs text-slate-500 dark:text-slate-400">
-                                                Jadwal: {{ $ekskul->hari ?: '-' }} - {{ $ekskul->jam ? \Carbon\Carbon::parse($ekskul->jam)->format('H:i') : '-' }} | Kuota: {{ $ekskul->kouta ?? 'N/A' }}
-                                            </p>
+                                <h4 class="text-md font-semibold text-slate-800 dark:text-slate-100">{{ $ekskul->nama_ekstra }}</h4> 
+                                    {{-- Jadwal Display --}}
+                                    <p class="text-xs text-slate-500 dark:text-slate-400" id="jadwal-display-{{ $ekskul->id_ekstrakurikuler }}">
+                                        Jadwal: {{ $ekskul->hari ?: '-' }} - {{ $ekskul->jam ? \Carbon\Carbon::parse($ekskul->jam)->format('H:i') : '-' }} | Kuota: {{ $ekskul->kouta ?? 'N/A' }}
+                                    </p>
+
+                                    {{-- Jadwal Form (hidden by default) --}}
+                                    <form id="jadwal-form-{{ $ekskul->id_ekstrakurikuler }}" action="{{ route('pj.dashboards', ['id' => $ekskul->id_ekstrakurikuler]) }}" method="POST" class="hidden">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="flex gap-2 items-center">
+                                            <select name="hari" class="select select select-bordered">
+                                                @foreach(['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu','Libur'] as $hari)
+                                                    <option value="{{ $hari }}" {{ $ekskul->hari == $hari ? 'selected' : '' }}>{{ $hari }}</option>
+                                                @endforeach
+                                            </select>
+                                            <input type="time" name="jam" value="{{ $ekskul->jam }}" class="input inputinput-bordered">
                                         </div>
-                                        <div class="mt-2 sm:mt-0">
-                                            <a href="#" class="text-xs text-sky-600 dark:text-sky-400 hover:underline me-2">Edit jadwal</a>
-                                            <a href="{{ route('pj.lihatpeserta', ['id' => $ekskul->id_ekstrakurikuler]) }}" class="text-xs text-sky-600 dark:text-sky-400 hover:underline me-2">Lihat Detail Peserta</a>
-                                        </div>
-                                    </div>
+                                    </form>
+                                </div>
+                                {{-- Tombol Aksi --}}
+                                <div class="mt-2 sm:mt-0">
+                                    <a href="#"
+                                    class="text-xs text-sky-600 dark:text-sky-400 hover:underline me-2"
+                                    onclick="toggleEdit({{ $ekskul->id_ekstrakurikuler }})"
+                                    id="btn-edit-{{ $ekskul->id_ekstrakurikuler }}">Edit jadwal</a>
+
+                                    <a id="btn-detail-{{ $ekskul->id_ekstrakurikuler }}"
+                                    href="{{ route('pj.lihatpeserta', ['id' => $ekskul->id_ekstrakurikuler]) }}"
+                                    data-href-lihatpeserta="{{ route('pj.lihatpeserta', ['id' => $ekskul->id_ekstrakurikuler]) }}"
+                                    class="text-xs text-sky-600 dark:text-sky-400 hover:underline me-2">
+                                    Lihat Detail Peserta
+                                    </a>    
                                 </div>
                             @endforeach
                         </div>
@@ -113,7 +133,48 @@
                     @endif
                 </div>
             </div>
-
         </div>
     </div>
+    <script>
+function toggleEdit(id) {
+    const display = document.getElementById(`jadwal-display-${id}`);
+    const form = document.getElementById(`jadwal-form-${id}`);
+    const btnEdit = document.getElementById(`btn-edit-${id}`);
+    const btnDetail = document.getElementById(`btn-detail-${id}`);
+
+    // Cek apakah sedang mode edit
+    if (form.classList.contains('hidden')) {
+        display.classList.add('hidden');
+        form.classList.remove('hidden');
+
+        btnEdit.textContent = 'Simpan';
+        btnEdit.setAttribute('onclick', `document.getElementById('jadwal-form-${id}').submit()`);
+
+        btnDetail.textContent = 'Cancel';
+        btnDetail.setAttribute('href', '#');
+        btnDetail.setAttribute('onclick', `cancelEdit(${id})`);
+    }
+}
+
+function cancelEdit(id) {
+    const display = document.getElementById(`jadwal-display-${id}`);
+    const form = document.getElementById(`jadwal-form-${id}`);
+    const btnEdit = document.getElementById(`btn-edit-${id}`);
+    const btnDetail = document.getElementById(`btn-detail-${id}`);
+
+    form.classList.add('hidden');
+    display.classList.remove('hidden');
+
+    btnEdit.textContent = 'Edit jadwal';
+    btnEdit.setAttribute('onclick', `toggleEdit(${id})`);
+
+    btnDetail.textContent = 'Lihat Detail Peserta';
+    btnDetail.setAttribute('href', `/pj/dashboard`);
+    btnDetail.removeAttribute('onclick'); // pastikan onclick dihapus agar tidak bertabrakan
+}
+
+
+
+
+</script>
 </x-app-layout>
