@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Absensi;
 use App\Models\DetailAbsensi;
 use App\Models\Ekstrakurikuler;
+use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+
 
 class AbsensiController extends Controller
 {
@@ -121,20 +123,22 @@ class AbsensiController extends Controller
 
         return back()->with('status', 'Status sesi absensi berhasil diubah!');
     }
-    public function updateStatusKehadiran(Request $request, DetailAbsensi $detailAbsensi): RedirectResponse
+    public function updateStatusKehadiran(Request $request, DetailAbsensi $detailAbsensi, Pengguna $pengguna): RedirectResponse
     {
         // Otorisasi: Pastikan PJ yang login adalah PJ dari ekstrakurikuler sesi ini
-        $this->authorize('update', $detailAbsensi); // Menggunakan Policy (disarankan)
-        // Atau otorisasi manual:
-        // if (Auth::user()->nim !== $detailAbsensi->absensi->ekstrakurikuler->id_pj) {
-        //     abort(403);
-        // }
+        if (Auth::user()->nim !== $detailAbsensi->absensi->ekstrakurikuler->id_pj) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah data ini.');
+        }
 
         $validated = $request->validate([
             'status' => ['required', 'string', \Illuminate\Validation\Rule::in(['hadir', 'izin', 'sakit', 'alpha', 'absen'])],
         ]);
 
-        $detailAbsensi->update(['status' => $validated['status']]);
+        if ($detailAbsensi->id_pengguna === $pengguna->nim) {
+            $detailAbsensi->update([
+                'status' => $request->input('status'),
+        ]);
+}
 
         return back()->with('status', 'Status kehadiran berhasil diperbarui!');
     }
@@ -209,6 +213,25 @@ class AbsensiController extends Controller
     {
         return view('absensi.scan');
     }
+
+    public function upload(Request $request, $id)
+    {
+        $request->validate([
+            'file_materi' => 'required|file|mimes:pdf,docx,doc|max:2048',
+        ]);
+    
+        $absensi = Absensi::findOrFail($id);
+    
+        // Simpan file ke storage/app/public/materi/
+        $path = $request->file('file_materi')->store('materi', 'public');
+    
+        // Update path file ke kolom 'materi'
+        $absensi->path = $path;
+        $absensi->save();
+    
+        return redirect()->back()->with('success', 'File materi berhasil diunggah.');
+    }
+    
 
     /**
      * Mencatat kehadiran setelah scan QR.

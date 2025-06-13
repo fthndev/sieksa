@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Absensi;
 use App\Models\DetailAbsensi;
 use App\Models\Ekstrakurikuler;
+use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Http\RedirectResponse;
 
 class AbsensiController extends Controller
 {
@@ -49,7 +50,7 @@ class AbsensiController extends Controller
             // Muat relasi 'ekstrakurikuler' dari sesi absensi ini
             'ekstrakurikuler',
             // Muat relasi 'detailAbsensi', dan untuk setiap detail, muat juga relasi 'pengguna' nya
-            'detailAbsensi.pengguna' => function ($query) {
+            'detailabsensi.pengguna' => function ($query) {
                 // Urutkan daftar peserta berdasarkan nama secara ascending (A-Z)
                 $query->orderBy('nama', 'asc');
             }
@@ -104,19 +105,41 @@ class AbsensiController extends Controller
     }
     public function regenerateQrCode(Absensi $absensi): JsonResponse
     {
-        // Otorisasi untuk memastikan PJ yang benar
-        if (Auth::user()->nim !== $absensi->ekstrakurikuler->id_pj) {
-            abort(403);
+        // Otorisasi & Logika... (seperti yang kita diskusikan sebelumnya)
+        // ...
+        $newUrl = URL::temporarySignedRoute('absensi.hadir', now()->addMinutes(10), ['absensi' => $absensi]);
+        return response()->json(['url' => $newUrl]);
+    }
+
+    public function toggleStatus(Absensi $absensi): RedirectResponse
+    {
+        // Otorisasi...
+        if (Auth::user()->nim !== $absensi->ekstrakurikuler->id_pj) { abort(403); }
+
+        // Ubah status
+        $absensi->status = ($absensi->status == 'open') ? 'closed' : 'open';
+        $absensi->save();
+
+        return back()->with('status', 'Status sesi absensi berhasil diubah!');
+    }
+    public function updateStatusKehadiran(Request $request, DetailAbsensi $detailAbsensi, Pengguna $pengguna): RedirectResponse
+    {
+        // Otorisasi: Pastikan PJ yang login adalah PJ dari ekstrakurikuler sesi ini
+        if (Auth::user()->nim !== $detailAbsensi->absensi->ekstrakurikuler->id_pj) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah data ini.');
         }
 
-        // Buat URL baru yang valid untuk 10 menit dari sekarang
-        $newUrlAbsensi = URL::temporarySignedRoute(
-            'absensi.hadir',
-            now()->addMinutes(10),
-            ['absensi' => $absensi]
-        );
+        $validated = $request->validate([
+            'status' => ['required', 'string', \Illuminate\Validation\Rule::in(['hadir', 'izin', 'sakit', 'alpha', 'absen'])],
+        ]);
 
-        return response()->json(['url' => $newUrlAbsensi]);
+        if ($detailAbsensi->id_pengguna === $pengguna->nim) {
+            $detailAbsensi->update([
+                'status' => $request->input('status'),
+        ]);
+}
+
+        return back()->with('status', 'Status kehadiran berhasil diperbarui!');
     }
 
     // =======================================================

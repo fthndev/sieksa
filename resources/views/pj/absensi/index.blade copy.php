@@ -39,8 +39,27 @@
                                         <tr class="hover">
                                             <td>{{ $sesi->pertemuan }}</td>
                                             <td>{{ \Carbon\Carbon::parse($sesi->tanggal)->translatedFormat('d M Y') }}</td>
-                                            <td>{{ Str::limit($sesi->materi, 50) }}</td>
-                                            <td class="text-center"><span class="badge badge-ghost">{{ $sesi->jumlah_hadir }}</span></td>
+                                            <td>
+                                                {{-- Tampilkan tombol upload dan link file jika ada --}}
+                                                <form action="{{ route('pj.absensi.upload', $sesi->id) }}" method="POST" enctype="multipart/form-data">
+                                                    @csrf
+                                                    <input type="file" name="file_materi" accept=".pdf,.docx" class="file-input file-input-sm file-input-bordered w-full max-w-xs mb-1" required>
+
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-upload"></i> Upload
+                                                    </button>
+
+                                                    @if($sesi->path)
+                                                        <br>
+                                                        <a href="{{ Storage::url($sesi->path) }}" target="_blank" class="btn btn-sm btn-info mt-1">
+                                                            <i class="fas fa-download"></i> Download
+                                                        </a>
+                                                    @endif
+                                                </form>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge badge-ghost">{{ $sesi->jumlah_hadir }}</span>
+                                            </td>
                                             <td class="text-center">
                                                 <a href="{{ route('pj.absensi.detail', $sesi) }}" class="btn btn-xs btn-outline btn-info">
                                                     Lihat Detail
