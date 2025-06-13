@@ -158,6 +158,10 @@
                         <i class="fas fa-users-cog me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Pengguna
                     </a>
+                    <a href="{{route('admin.users.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-users-cog me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Akun
+                    </a>
                     <a href="{{route('admin.ekstrakurikuler.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
                         <i class="fas fa-puzzle-piece me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Ekstrakurikuler

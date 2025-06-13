@@ -19,6 +19,8 @@ use App\Http\Controllers\Warga\EkstrakurikulerDetailController as WargaEkstrakur
 use App\Http\Controllers\Musahil\EkstrakurikulerDetailController as MusahilEkstrakurikulerDetailController;
 use App\Http\Controllers\PJ\ListWargaDidampingPj as ListWargaDidampingiControllerPJ;
 use App\Http\Controllers\Admin\EkstrakurikulerController as AdminEkstrakurikulerController;
+use App\Http\Controllers\Admin\UserController as UserController;
+
 // |--------------------------------------------------------------------------
 // | Web Routes
 // |--------------------------------------------------------------------------
@@ -117,6 +119,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('/ekstrakurikuler/{ekstrakurikuler}/revoke-pj', [AdminEkstrakurikulerController::class, 'revokePj'])->name('ekstrakurikuler.members.revoke');
                 // Tambahkan rute lain untuk manajemen oleh admin di sini nanti
                 // Contoh: Route::resource('/users', AdminUserController::class);
+                Route::get('/users', [UserController::class, 'index'])->name('users.index');
+                Route::delete('/users/{pengguna}', [UserController::class, 'destroy'])->name('users.destroy');
         });    
 
     // Rute Profil
