@@ -46,15 +46,13 @@ class ProfileController extends Controller
 
         // Validated data akan berisi 'name' dan 'email' (dari ProfileUpdateRequest)
         // Langsung fill ke model Pengguna
-        $user->fill($request->validated());
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null; // Reset verifikasi email di model Pengguna
-        }
+        $user->nama = $request->input('name');
+        $user->email = $request->input('email');
+        $user->telepon = $request->input('telepon');
 
         $user->save(); // Simpan perubahan pada model Pengguna
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('success', 'Profile Anda telah Berhasil Dirubah!');
     }
 
     /**
@@ -88,6 +86,19 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        return Redirect::to('/');
+    }
+
+    public function update_pw(Request $request)
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'], // 'current_password' akan cek password di tabel 'akun' via model Pengguna
+        ]);
+
+        /** @var \App\Models\Pengguna $user */
+        $user = $request->user();
+        $akun = \App\Models\Akun::where('nim', $user->nim)->first();
+        $nim_akun = $akun->nim;
         return Redirect::to('/');
     }
 }

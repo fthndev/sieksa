@@ -16,20 +16,22 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-1">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
+        <div class="h-[50px] p-4 space-y-4 z-[100]">
             {{-- Notifikasi Sukses --}}
             @if(session('status'))
-            <div role="alert" class="alert alert-success shadow-lg mb-6">
+            <div id="alert-success" role="alert" class="alert alert-success shadow-lg mb-6 opacity-0 transition-opacity duration-500 ease-in-out">
                 <div>
                     <i class="fas fa-check-circle"></i>
                     <span>{{ session('status') }}</span>
                 </div>
             </div>
             @endif
+        </div>
 
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-xl mt-10">
                 <div class="card-body">
                     {{-- ... (Bagian Materi Pembahasan tetap sama) ... --}}
 
@@ -55,7 +57,7 @@
                                         <td>{{ $detail->pengguna->nama }}</td>
                                         <td>
                                             {{-- Form untuk mengupdate status --}}
-                                            <form action="{{ route('pj.absensi.update_status', $detail) }}" method="POST" class="flex items-center gap-2">
+                                            <form action="{{ route('pj.absensi.update_status', [$detail, $detail->pengguna->nim]) }}" method="POST" class="flex items-center gap-2">
                                                 @csrf
                                                 @method('PATCH')
                                                 
@@ -67,9 +69,16 @@
                                                         'absen', 'alpha' => 'select-error',
                                                         default => 'select-bordered',
                                                     };
+
+                                                    $BorderClass = match ($statusSekarang) {
+                                                        'hadir' => 'select-success',
+                                                        'izin', 'sakit' => 'select-info',
+                                                        'absen', 'alpha' => 'select-error',
+                                                        default => 'select-bordered',
+                                                    };
                                                 @endphp
                                                 
-                                                <select name="status" class="select select-sm {{ $selectClass }} w-full max-w-xs">
+                                                <select name="status" class="select select-sm {{ $selectClass }} w-full max-w-xs h-10">
                                                     <option value="hadir" @selected($statusSekarang == 'hadir')>Hadir</option>
                                                     <option value="sakit" @selected($statusSekarang == 'sakit')>Sakit</option>
                                                     <option value="izin" @selected($statusSekarang == 'izin')>Izin</option>
@@ -93,4 +102,20 @@
             </div>
         </div>
     </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const alertBox = document.getElementById('alert-success');
+        if (alertBox) {
+            setTimeout(() => {
+                alertBox.classList.remove('opacity-0');
+                alertBox.classList.add('opacity-100');
+            }, 100);
+
+            setTimeout(() => {
+                alertBox.classList.add('opacity-0'); // untuk animasi fade out
+                setTimeout(() => alertBox.remove(), 500); // hapus elemen setelah fade out
+            }, 2000); // tampil selama 3 detik
+        }
+    });
+</script>
 </x-app-layout>
