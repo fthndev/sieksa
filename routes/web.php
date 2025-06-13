@@ -85,7 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/absensi/{absensi}/detail', [AbsensiController::class, 'tampilkanDetailSesi'])->name('absensi.detail');
             Route::post('/absensi/{absensi}/regenerate-qr', [AbsensiController::class, 'regenerateQrCode'])->name('absensi.regenerate_qr');
             Route::post('/absensi/{absensi}/toggle-status', [AbsensiController::class, 'toggleStatus'])->name('absensi.toggle_status');
-            Route::patch('/detail-absensi/{detailAbsensi}/update-status', [AbsensiController::class, 'updateStatusKehadiran'])->name('absensi.update_status');
+            Route::patch('/detail-absensi/{detailAbsensi}/{pengguna}/update-status', [AbsensiController::class, 'updateStatusKehadiran'])->name('absensi.update_status');
             Route::post('/ekstrakurikuler/{ekstrakurikuler}/mulai-sesi-qr', [AbsensiController::class, 'mulaiSesiDanTampilkanQR'])->name('absensi.mulai_sesi_qr');
             Route::get('/list-warga', [ListWargaDidampingiControllerPJ::class, 'index'])->name('list-warga');
 
@@ -99,8 +99,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rute Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/password', [ProfileController::class, 'update_pw'])->name('pw.update');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 
 
     // PENAMBAHAN: Rute untuk Warga & Musahil membuka halaman scanner

@@ -15,10 +15,10 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var \App\Models\Akun $akun */
+        /** @var \App\Models\Pengguna $akun */
         $akun = $this->user(); // $this->user() di FormRequest akan mengembalikan instance Akun
-        $penggunaId = $akun->pengguna ? $akun->pengguna->nim : null; // Dapatkan NIM pengguna yang berelasi
-
+        $penggunaNIM = $akun->nim ? $akun->nim : null; // Dapatkan NIM pengguna yang berelasi
+   
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -29,7 +29,7 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 // Validasi unique pada tabel 'pengguna', kolom 'email',
                 // abaikan record dengan 'nim' saat ini.
-                Rule::unique(Pengguna::class, 'email')->ignore($penggunaId, 'nim'),
+                Rule::unique(Pengguna::class, 'email')->ignore($penggunaNIM, 'nim'),
             ],
             // Tambahkan validasi untuk field lain jika ada (misalnya 'telepon')
             // 'telepon' => ['nullable', 'string', 'max:20'],
