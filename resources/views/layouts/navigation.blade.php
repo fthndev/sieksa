@@ -39,8 +39,8 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/0 hover:text-red-700 dark:hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition ease-in-out duration-150">
-                                <i class="fas fa-user-circle text-lg me-2 opacity-80"></i>
-                                <div>{{ Auth::user()->name }}</div>
+                                <img class="h-8 w-8 rounded-full me-2 object-cover" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama) }}&background=random&color=fff&bold=true" alt="{{ Auth::user()->nama }}">
+                                <div>{{ Auth::user()->nama }}</div>
                                 <div class="ms-1">
                                     <i class="fas fa-chevron-down text-xs opacity-70"></i>
                                 </div>

@@ -9,6 +9,7 @@ import intersect from '@alpinejs/intersect';
 // 2. Import library untuk QR Code Scanner
 import { Html5Qrcode } from "html5-qrcode";
 import Swal from 'sweetalert2';
+import Chart from 'chart.js/auto';
 
 // ===== IMPORT CSS =====
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -22,6 +23,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 window.Alpine = Alpine;
 window.Html5Qrcode = Html5Qrcode; // <-- Baris ini sekarang akan berfungsi dengan benar
 window.Swal = Swal; // <-- Baris ini sekarang akan berfungsi dengan benar
+window.Chart = Chart; 
 
 // 2. Daftarkan plugin Alpine.js
 Alpine.plugin(intersect);

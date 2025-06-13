@@ -30,6 +30,9 @@ class DashboardController extends Controller
                 case 'pj':
                     // Pastikan route 'pj.dashboard' sudah ada di routes/web.php
                     return redirect()->route('pj.dashboard');
+                case 'admin':
+                    // Pastikan route 'pj.dashboard' sudah ada di routes/web.php
+                    return redirect()->route('admin.dashboard');
                 default:
                     break;
             }
