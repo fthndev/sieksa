@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
+
 class AbsensiController extends Controller
 {
     // =======================================================
@@ -209,6 +210,25 @@ class AbsensiController extends Controller
     {
         return view('absensi.scan');
     }
+
+    public function upload(Request $request, $id)
+    {
+        $request->validate([
+            'file_materi' => 'required|file|mimes:pdf,docx,doc|max:2048',
+        ]);
+    
+        $absensi = Absensi::findOrFail($id);
+    
+        // Simpan file ke storage/app/public/materi/
+        $path = $request->file('file_materi')->store('materi', 'public');
+    
+        // Update path file ke kolom 'materi'
+        $absensi->path = $path;
+        $absensi->save();
+    
+        return redirect()->back()->with('success', 'File materi berhasil diunggah.');
+    }
+    
 
     /**
      * Mencatat kehadiran setelah scan QR.

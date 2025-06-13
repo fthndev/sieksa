@@ -23,7 +23,8 @@ class Absensi extends Model
         'id_ekstrakurikuler', // <-- PASTIKAN EJAAN INI BENAR (dengan 's', bukan 't')
         'tanggal',
         'pertemuan',
-        'materi'
+        'materi',
+        'path'
     ];
 
     /**

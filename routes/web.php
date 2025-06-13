@@ -88,7 +88,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/detail-absensi/{detailAbsensi}/update-status', [AbsensiController::class, 'updateStatusKehadiran'])->name('absensi.update_status');
             Route::post('/ekstrakurikuler/{ekstrakurikuler}/mulai-sesi-qr', [AbsensiController::class, 'mulaiSesiDanTampilkanQR'])->name('absensi.mulai_sesi_qr');
             Route::get('/list-warga', [ListWargaDidampingiControllerPJ::class, 'index'])->name('list-warga');
-
+            // routes/web.php
+            Route::post('/pj/absensi/{id}/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
             // Rute CRUD Ekstrakurikuler Anda yang lain
             Route::get('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerDetailController::class, 'show'])
             ->name('detail_ekstra');
