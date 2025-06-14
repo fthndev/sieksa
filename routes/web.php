@@ -111,6 +111,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 // Halaman untuk menampilkan & mengelola anggota
             Route::get('/ekstrakurikuler/{ekstrakurikuler}/kelola-anggota', [AdminEkstrakurikulerController::class, 'showMembers'])->name('ekstrakurikuler.members');
             Route::post('/{ekstrakurikuler}/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');
+            Route::post('/admin/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'store'])->name('ekstrakurikuler.store');
+            Route::put('/admin/ekstrakurikuler/{ekskul}/update', [AdminEkstrakurikulerController::class, 'update'])->name('ekstrakurikuler.update');
 
             // Aksi untuk mengeluarkan anggota dari ekskul
             Route::delete('/ekstrakurikuler/members/{ekstrakurikuler}/{pengguna}/remove', [AdminEkstrakurikulerController::class, 'removeMember'])->name('ekstrakurikuler.members.remove');
