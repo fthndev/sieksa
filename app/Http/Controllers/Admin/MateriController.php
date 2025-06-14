@@ -32,7 +32,7 @@ class MateriController extends Controller
     public function clear_all_materi(): RedirectResponse
     {
         // Jika tidak ada relasi, baru hapus semua absensi
-        $data_absensi = Absensi::query()->update(['path' => null]);
+        Absensi::query()->update(['path' => null]);
         return redirect()->back()->with('success', 'Semua data absensi berhasil dihapus.');
     }
 }
