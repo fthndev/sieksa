@@ -22,8 +22,8 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                         <a href="{{ route('admin.pengguna.index') }}" class="card bg-base-200 hover:bg-base-300 p-6 text-center transition-all group"><div class="text-4xl text-primary group-hover:scale-110 transition-transform"><i class="fas fa-users-cog"></i></div><p class="mt-2 font-semibold">Kelola Pengguna</p></a>
                         <a href="{{ route('admin.ekstrakurikuler.index') }}" class="card bg-base-200 hover:bg-base-300 p-6 text-center transition-all group"><div class="text-4xl text-accent group-hover:scale-110 transition-transform"><i class="fas fa-puzzle-piece"></i></div><p class="mt-2 font-semibold">Kelola Ekstrakurikuler</p></a>
-                        <a href="#" class="card bg-base-200 hover:bg-base-300 p-6 text-center transition-all group"><div class="text-4xl text-info group-hover:scale-110 transition-transform"><i class="fas fa-calendar-check"></i></div><p class="mt-2 font-semibold">Kelola Absensi</p></a>
-                        <a href="#" class="card bg-base-200 hover:bg-base-300 p-6 text-center transition-all group"><div class="text-4xl text-warning group-hover:scale-110 transition-transform"><i class="fas fa-book-open"></i></div><p class="mt-2 font-semibold">Kelola Materi</p></a>
+                        <a href="{{route('admin.daftar_absensi_ekstra')}}" class="card bg-base-200 hover:bg-base-300 p-6 text-center transition-all group"><div class="text-4xl text-info group-hover:scale-110 transition-transform"><i class="fas fa-calendar-check"></i></div><p class="mt-2 font-semibold">Kelola Absensi</p></a>
+                        <a href="{{route('admin.daftar_materi_ekstra')}}" class="card bg-base-200 hover:bg-base-300 p-6 text-center transition-all group"><div class="text-4xl text-warning group-hover:scale-110 transition-transform"><i class="fas fa-book-open"></i></div><p class="mt-2 font-semibold">Kelola Materi</p></a>
                     </div>
                 </div>
             </div>
