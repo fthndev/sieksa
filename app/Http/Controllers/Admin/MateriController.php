@@ -25,7 +25,7 @@ class MateriController extends Controller
     $absensi = Absensi::findOrFail($id_detail_absensi);
     // $adaDetail = DetailAbsensi::where('id_absensi', $absensi->id_absensi)->exists();
     
-    $absensi->status = null;
+    $absensi->path = null;
     $absensi->save();
 
     return redirect()->route('admin.daftar_materi_ekstra')
