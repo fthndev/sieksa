@@ -25,12 +25,12 @@ class MateriController extends Controller
     $adaDetail = DetailAbsensi::where('id_absensi', $absensi->id_absensi)->exists();
 
     if ($adaDetail) {
-        return redirect()->route('admin.daftar_materi')
+        return redirect()->route('admin.daftar_materi_ekstra')
             ->with('error', 'Gagal menghapus: Materi ini masih memiliki data di detail absensi.');
     }
     $absensi->delete();
 
-    return redirect()->route('admin.daftar_materi')
+    return redirect()->route('admin.daftar_materi_ekstra')
         ->with('success', 'Data berhasil dihapus!');
     }
     public function clear_all_materi(): RedirectResponse
