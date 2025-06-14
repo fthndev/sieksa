@@ -27,8 +27,6 @@
             </div>
     </x-slot>
 
-
-
     {{-- Konten halaman --}}
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-1">
@@ -38,19 +36,45 @@
             <hr class="border-slate-300 dark:border-slate-600" /> 
         </div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
-            {{-- isi halaman --}}
-            <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-md sm:rounded-lg">
-                    <div class="p-3 ms-4 text-slate-900 dark:text-slate-100 flex gap-3">
-                        <div class="flex items-center bg-[#A93425] w-12 h-12 flex justify-center rounded-full">
-                            <i class="fa-regular fa-clipboard fa-xl text-white"></i>
-                        </div>
+            @foreach($ekskul->absensi as $datamateri)
+            @php
+                $extension = pathinfo($datamateri->path, PATHINFO_EXTENSION);
+            @endphp
+            <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-md sm:rounded-lg mb-4">
+                <div class="p-3 ms-4 text-slate-900 dark:text-slate-100 flex gap-3">
+                    <div class="flex items-center bg-[#A93425] w-12 h-12 flex justify-center rounded-full">
+                        <i class="fa-regular fa-clipboard fa-xl text-white"></i>
+                    </div>
+                    <div class="flex-column">
                         <div class="flex items-center">
-                            <h3 class="text- fosmnt-medium">
-                                Ini Merupakan Contoh Materi yang akan diposting!!
+                            <h3 class="text-fosmnt-medium">
+                                {{ucwords($datamateri->materi)}}
                             </h3>
+                        </div>
+                        <div>
+                            <a href="{{ Storage::url($datamateri->path) }}" target="_blank" class="">
+                                @if($extension === "pdf")
+                                    <i class="fas fa-file-pdf text-red-500"></i> <span class="text-sm hover:text-blue-600 hover:underline">Lihat File Materi</span>
+                                @elseif($extension ==="pptx")
+                                    <i class="fas fa-file-word text-blue-500"></i> <span class="hover:text-blue-600 hover:underline text-sm">Lihat File Materi</span> 
+                                @elseif($extension === "doc")
+                                    <i class="fas fa-file-word text-blue-500"></i> <span class="hover:text-blue-600 hover:underline text-sm">Lihat File Materi</span>
+                                @elseif($extension === "docx")
+                                    <i class="fas fa-file-powerpoint text-orange-500"></i> <span class="hover:text-blue-600hover:underlinetext-sm">Lihat File Materi</span>
+                                @endif
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-auto">
+                        <div class="">
+                            <span class="italic text-xs font-thin font-[Poppins] text-sm text-gray-500 tracking-wide">
+                                Uploaded : {{ date("d F", strtotime($datamateri->tanggal)) }}
+                            </span>
                         </div>
                     </div>
                 </div>
+            </div>
+            @endforeach
         </div>
     </div>
 </x-app-layout>

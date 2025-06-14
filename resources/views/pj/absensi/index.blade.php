@@ -39,10 +39,10 @@
                                 <table class="table table-sm w-full">
                                     <thead>
                                         <tr>
-                                            <th>Pertemuan</th>
-                                            <th>Tanggal</th>
-                                            <th>Materi</th>
-                                            <th>File Materi</th>
+                                            <th class="text-center">Pertemuan</th>
+                                            <th class="text-center">Tanggal</th>
+                                            <th class="text-center">Materi</th>
+                                            <th class="text-center">File Materi</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Jumlah Hadir</th>
                                             <th class="text-center">Aksi</th>

@@ -217,7 +217,7 @@ class AbsensiController extends Controller
     public function upload(Request $request, $id)
     {
         $request->validate([
-            'file_materi' => 'required|file|mimes:pdf,docx,doc|max:2048',
+            'file_materi' => 'required|file|mimes:pdf,docx,doc,pptx|max:2048',
         ]);
     
         $absensi = Absensi::findOrFail($id);
