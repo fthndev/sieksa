@@ -110,10 +110,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'index'])->name('ekstrakurikuler.index');
                 // Halaman untuk menampilkan & mengelola anggota
             Route::get('/ekstrakurikuler/{ekstrakurikuler}/kelola-anggota', [AdminEkstrakurikulerController::class, 'showMembers'])->name('ekstrakurikuler.members');
-            Route::post('/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');
+            Route::post('/{ekstrakurikuler}/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');
 
             // Aksi untuk mengeluarkan anggota dari ekskul
-            Route::delete('/ekstrakurikuler/members/{pengguna}/remove', [AdminEkstrakurikulerController::class, 'removeMember'])->name('ekstrakurikuler.members.remove');
+            Route::delete('/ekstrakurikuler/members/{ekstrakurikuler}/{pengguna}/remove', [AdminEkstrakurikulerController::class, 'removeMember'])->name('ekstrakurikuler.members.remove');
+            Route::delete('/ekstrakurikuler//members/{ekskul}/remove-all', [AdminEkstrakurikulerController::class, 'removeAllMembers'])->name('ekstrakurikuler.members.removeAll');
 
             // Aksi untuk mempromosikan anggota menjadi PJ
             Route::post('/ekstrakurikuler/{ekstrakurikuler}/assign-pj', [AdminEkstrakurikulerController::class, 'assignPj'])->name('ekstrakurikuler.members.assign');

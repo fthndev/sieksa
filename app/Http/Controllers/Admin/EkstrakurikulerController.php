@@ -34,11 +34,11 @@ class EkstrakurikulerController extends Controller
      */
     public function showMembers(Ekstrakurikuler $ekstrakurikuler): View
     {
-        $calonAnggota = Pengguna::where('role', '!=', 'admin')
+        $calonAnggota = Pengguna::where('role', '!=', ['admin', 'pj'])
                                 ->whereNull('id_ekstrakurikuler')
                                 ->orderBy('nama')->get();
 
-        $calonPj = Pengguna::whereIn('role', ['warga', 'musahil'])
+        $calonPj = Pengguna::whereIn('role', ['musahil'])
                            ->orderBy('nama')->get();
 
         $ekstrakurikuler->load(['penanggungJawab', 'pesertas' => function ($query) {
@@ -54,21 +54,27 @@ class EkstrakurikulerController extends Controller
     
     /**
      * Menambahkan anggota baru ke ekstrakurikuler.
-     */
-    public function addMember(Request $request, Ekstrakurikuler $ekstrakurikuler): RedirectResponse
-    {
-        $validated = $request->validate(['nim_anggota' => 'required|exists:pengguna,nim']);
-        $pengguna = Pengguna::find($validated['nim_anggota']);
+     */public function addMember(Request $request, Ekstrakurikuler $ekstrakurikuler): RedirectResponse
+{
+    $validated = $request->validate([
+        'nim_anggota' => 'required|exists:pengguna,nim',
+    ]);
 
-        if ($pengguna->id_ekstrakurikuler) {
-            return back()->with('error', "Gagal, {$pengguna->nama} sudah terdaftar di ekskul lain.");
-        }
+    // Ambil pengguna berdasarkan NIM
+    $pengguna = Pengguna::where('nim', $validated['nim_anggota'])->firstOrFail();
 
-        $pengguna->id_ekstrakurikuler = $ekstrakurikuler->id_ekstrakurikuler;
-        $pengguna->save();
-
-        return back()->with('success', "{$pengguna->nama} berhasil ditambahkan ke ekstrakurikuler.");
+    // Cek apakah pengguna sudah terdaftar di ekskul lain
+    if ($pengguna->id_ekstrakurikuler) {
+        return back()->with('error', "Gagal, {$pengguna->nama} sudah terdaftar di ekskul lain.");
     }
+
+    // Update id_ekstrakurikuler pengguna
+    $pengguna::where('nim', $validated['nim_anggota'])
+    ->update(['id_ekstrakurikuler' => $ekstrakurikuler->id_ekstrakurikuler]);
+    
+    return back()->with('success', "{$pengguna->nama} berhasil ditambahkan ke ekstrakurikuler.");
+}
+
 
     /**
      * Mengeluarkan seorang anggota dari ekstrakurikuler utama.
@@ -88,6 +94,15 @@ class EkstrakurikulerController extends Controller
 
         return back()->with('success', "Anggota '{$pengguna->nama}' berhasil dikeluarkan dari ekstrakurikuler.");
     }
+    public function removeAllMembers(Ekstrakurikuler $ekskul): RedirectResponse
+    {
+        Pengguna::where('id_ekstrakurikuler', $ekskul->id_ekstrakurikuler)
+            ->whereIn('role', ['warga', 'musahil']) // ✅ hanya role tertentu
+            ->update(['id_ekstrakurikuler' => null]);
+    
+        return back()->with('success', 'Semua peserta (warga & musahil) berhasil dikeluarkan dari ekstrakurikuler.');
+    }
+    
 
     /**
      * Menugaskan seorang anggota menjadi PJ untuk ekstrakurikuler ini.
@@ -123,7 +138,7 @@ class EkstrakurikulerController extends Controller
             DB::transaction(function () use ($ekstrakurikuler, $pjLama) {
                 $ekstrakurikuler->id_pj = null;
                 $ekstrakurikuler->save();
-                $pjLama->role = 'warga';
+                $pjLama->role = 'musahil';
                 $pjLama->save();
             });
             return back()->with('success', "Status PJ untuk {$pjLama->nama} berhasil dicabut.");
