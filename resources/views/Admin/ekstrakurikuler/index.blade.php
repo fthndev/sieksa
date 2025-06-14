@@ -4,22 +4,63 @@
             <h2 class="font-semibold text-xl text-base-content leading-tight">
                 Kelola Ekstrakurikuler
             </h2>
-            <a href="#" {{-- Ganti dengan route('admin.ekstrakurikuler.create') nanti --}}
-               class="btn btn-primary btn-sm">
-                <i class="fas fa-plus"></i> Tambah Baru
-            </a>
+            <div x-data="{ showTambah: false }">
+                <button @click="showTambah = true" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Tambah Baru
+                </button>
+                <div x-show="showTambah" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+                        <h2 class="text-lg font-semibold mb-4">Tambah Ekstrakurikuler</h2>
+                        <form method="POST" action="{{ route('admin.ekstrakurikuler.store') }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="label">Nama Ekstra</label>
+                                <input type="text" name="nama_ekstra" class="input input-bordered w-full" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label">Hari</label>
+                                <input type="text" name="hari" class="input input-bordered w-full" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label">Jam</label>
+                                <input type="time" name="jam" class="input input-bordered w-full" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label">Kuota</label>
+                                <input type="number" name="kuota" class="input input-bordered w-full" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label">Keterangan</label>
+                                <textarea name="keterangan" class="textarea textarea-bordered w-full"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label">Penanggung Jawab (NIM)</label>
+                                <select name="id_pj" class="select select-bordered w-full" required>
+                                    <option disabled selected value="">Pilih Penanggung Jawab</option>
+                                    @foreach($calonPj as $calon)
+                                        <option value="{{ $calon->nim }}">{{ $calon->nama }} ({{ $calon->nim }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex justify-between mt-6">
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                <button type="button" class="btn btn-secondary" @click="showTambah = false">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            @if(session('success'))
-            <div role="alert" class="alert alert-success shadow-lg mb-6">
-                <div><i class="fas fa-check-circle"></i><span>{{ session('success') }}</span></div>
-            </div>
-            @endif
 
+            @if(session('success'))
+                <div id="success-alert" role="alert" class="alert alert-success shadow-lg mb-6">
+                    <div><i class="fas fa-check-circle"></i><span>{{ session('success') }}</span></div>
+                </div>
+            @endif
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @forelse ($listEkstrakurikuler as $ekskul)
                     <div class="card card-side bg-base-100 shadow-xl transition-all duration-300 hover:shadow-2xl">
@@ -41,10 +82,65 @@
                                 </div>
                             </div>
                             <div class="card-actions justify-end mt-4">
-                                <a href="{{ route('admin.ekstrakurikuler.members', $ekskul) }}"
-                                   class="btn btn-primary">
-                                    Kelola Anggota
-                                    <i class="fas fa-arrow-right ms-2"></i>
+                            <div x-data="{ editModal: false, formData: {}, formMode: '' }">
+                                <button 
+                                @click="
+                                    editModal = true;
+                                    formMode = 'edit';
+                                    formData = {
+                                        id: {{ $ekskul->id_ekstrakurikuler }},
+                                        nama_ekstra: @js($ekskul->nama_ekstra),
+                                        hari: @js($ekskul->hari),
+                                        jam: @js($ekskul->jam),
+                                        kuota: {{ $ekskul->kuota ?? 0 }},
+                                        keterangan: @js($ekskul->keterangan ?? ''),
+                                        id_pj: @js($ekskul->id_pj ?? '')
+                                    }
+                                "
+                                    class="btn btn-warning" >
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <div x-show="editModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+                                    <div class="bg-white p-6 rounded-xl w-full max-w-xl shadow-lg relative">
+                                        <button class="absolute top-2 right-2 text-gray-400 hover:text-black" @click="editModal = false">&times;</button>
+                                        <h2 class="text-xl font-bold mb-4" x-text="formMode === 'edit' ? 'Edit Ekstrakurikuler' : 'Tambah Ekstrakurikuler'"></h2>
+                                        <form action="{{route('admin.ekstrakurikuler.update', $ekskul->id_ekstrakurikuler)}}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="_method" value="PUT">
+                                            <template x-if="formMode === 'edit'">
+                                                <input type="hidden" name="_method" value="PUT">
+                                            </template>
+
+                                            <div class="mb-3">
+                                                <label>Nama Ekstrakurikuler</label>
+                                                <input type="text" name="nama_ekstra" x-model="formData.nama_ekstra" class="input input-bordered w-full" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label>Hari</label>
+                                                <input type="text" name="hari" x-model="formData.hari" class="input input-bordered w-full" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label>Jam</label>
+                                                <input type="time" name="jam" x-model="formData.jam" class="input input-bordered w-full" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label>Kuota</label>
+                                                <input type="number" name="kuota" x-model="formData.kuota" class="input input-bordered w-full" min="1" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label>Keterangan</label>
+                                                <textarea name="keterangan" x-model="formData.keterangan" class="textarea textarea-bordered w-full"></textarea>
+                                            </div>
+                                            <div class="mt-4 flex justify-end gap-2">
+                                                <button type="button" class="btn" @click="editModal = false">Batal</button>
+                                                <button type="submit" class="btn btn-primary" x-text="formMode === 'edit' ? 'Update' : 'Simpan'"></button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                                <a href="{{ route('admin.ekstrakurikuler.members', $ekskul) }}" class="btn btn-primary">
+                                    Kelola Anggota <i class="fas fa-arrow-right ms-2"></i>
                                 </a>
                             </div>
                         </div>
@@ -59,11 +155,23 @@
                     </div>
                 @endforelse
             </div>
-            
-            {{-- Navigasi Paginasi --}}
+
             <div class="mt-8">
                 {{ $listEkstrakurikuler->links() }}
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const alertBox = document.getElementById('success-alert');
+            if (alertBox) {
+                setTimeout(() => {
+                    alertBox.style.transition = 'opacity 0.5s ease';
+                    alertBox.style.opacity = '0';
+                    setTimeout(() => alertBox.remove(), 500);
+                }, 3000);
+            }
+        });
+    </script>
 </x-app-layout>
