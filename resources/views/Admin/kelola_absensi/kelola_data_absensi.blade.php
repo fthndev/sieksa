@@ -9,6 +9,25 @@
             </div>
         </div>
     </x-slot>
+    @if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',    // pojok kanan atas
+                icon: 'success',
+                title: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        });
+    </script>
+    @endif
     <div class="py-12">
        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <form method="GET" action="{{ route('admin.kelola_absensi_member', $ekskul->id_ekstrakurikuler) }}" class="mb-6">

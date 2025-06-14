@@ -77,7 +77,7 @@ class AbsensiEkstra extends Controller
         ]);
         }
 
-        return back()->with('status', 'Status kehadiran berhasil diperbarui!');
+        return back()->with('success', 'Status kehadiran berhasil diperbarui!');
     }
 
     public function show_members_detail(Request $request, $id): View
