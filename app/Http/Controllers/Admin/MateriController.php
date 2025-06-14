@@ -8,6 +8,7 @@ use App\Models\DetailAbsensi;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use phpDocumentor\Reflection\Types\Null_;
 
 class MateriController extends Controller
 {
@@ -22,13 +23,10 @@ class MateriController extends Controller
     public function hapus_materi($id_detail_absensi): RedirectResponse
     {
     $absensi = Absensi::findOrFail($id_detail_absensi);
-    $adaDetail = DetailAbsensi::where('id_absensi', $absensi->id_absensi)->exists();
-
-    if ($adaDetail) {
-        return redirect()->route('admin.daftar_materi_ekstra')
-            ->with('error', 'Gagal menghapus: Materi ini masih memiliki data di detail absensi.');
-    }
-    $absensi->delete();
+    // $adaDetail = DetailAbsensi::where('id_absensi', $absensi->id_absensi)->exists();
+    
+    $absensi->status = null;
+    $absensi->save();
 
     return redirect()->route('admin.daftar_materi_ekstra')
         ->with('success', 'Data berhasil dihapus!');
