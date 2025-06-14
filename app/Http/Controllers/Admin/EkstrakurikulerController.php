@@ -13,32 +13,38 @@ use Illuminate\Support\Facades\DB;     // <-- PENTING: Tambahkan ini
 
 class EkstrakurikulerController extends Controller
 {
-    /**
-     * Menampilkan halaman daftar semua ekstrakurikuler untuk dikelola Admin.
-     */
+
     public function index(): View
     {
-        $listEkstrakurikuler = Ekstrakurikuler::with('penanggungJawab')
+        $listEkstrakurikuler = Ekstrakurikuler::with(['penanggungJawab', 'pesertas'])
                                              ->withCount('pesertas')
                                              ->orderBy('nama_ekstra', 'asc')
                                              ->paginate(10);
-
+    
+        // Ambil calon PJ (misalnya hanya yang belum punya ekstrakurikuler & rolenya warga atau musahil)
+        $calonPj = Pengguna::whereNull('id_ekstrakurikuler')
+                           ->whereIn('role', [ 'musahil'])
+                           ->get();
+    
         return view('admin.ekstrakurikuler.index', [
             'user' => Auth::user(),
-            'listEkstrakurikuler' => $listEkstrakurikuler
+            'listEkstrakurikuler' => $listEkstrakurikuler,
+            'calonPj' => $calonPj, // ⬅️ kirim ke view
         ]);
     }
+    
+    
 
     /**
      * Menampilkan halaman untuk mengelola anggota sebuah ekstrakurikuler.
      */
     public function showMembers(Ekstrakurikuler $ekstrakurikuler): View
     {
-        $calonAnggota = Pengguna::where('role', '!=', 'admin')
+        $calonAnggota = Pengguna::where('role', '!=', ['admin', 'pj'])
                                 ->whereNull('id_ekstrakurikuler')
                                 ->orderBy('nama')->get();
 
-        $calonPj = Pengguna::whereIn('role', ['warga', 'musahil'])
+        $calonPj = Pengguna::whereIn('role', ['musahil'])
                            ->orderBy('nama')->get();
 
         $ekstrakurikuler->load(['penanggungJawab', 'pesertas' => function ($query) {
@@ -51,24 +57,66 @@ class EkstrakurikulerController extends Controller
             'calonPj' => $calonPj,
         ]);
     }
-    
-    /**
-     * Menambahkan anggota baru ke ekstrakurikuler.
-     */
-    public function addMember(Request $request, Ekstrakurikuler $ekstrakurikuler): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate(['nim_anggota' => 'required|exists:pengguna,nim']);
-        $pengguna = Pengguna::find($validated['nim_anggota']);
-
-        if ($pengguna->id_ekstrakurikuler) {
-            return back()->with('error', "Gagal, {$pengguna->nama} sudah terdaftar di ekskul lain.");
-        }
-
-        $pengguna->id_ekstrakurikuler = $ekstrakurikuler->id_ekstrakurikuler;
-        $pengguna->save();
-
-        return back()->with('success', "{$pengguna->nama} berhasil ditambahkan ke ekstrakurikuler.");
+        $validated = $request->validate([
+            'nama_ekstra' => 'required|string|max:255',
+            'hari' => 'required|string',
+            'jam' => 'required',
+            'kuota' => 'required|integer|min:1',
+            'keterangan' => 'string',
+            'id_pj' => 'required|exists:pengguna,nim',
+        ]);
+    
+        DB::transaction(function () use ($validated) {
+            // Buat ekstrakurikuler baru
+            $ekskul = Ekstrakurikuler::create([
+                'nama_ekstra' => $validated['nama_ekstra'],
+                'hari' => $validated['hari'],
+                'jam' => $validated['jam'],
+                'kuota' => $validated['kuota'],
+                'keterangan' => $validated['keterangan'],
+                'id_pj' => $validated['id_pj'],
+            ]);
+    
+            // Update pengguna menjadi PJ
+            $pj = Pengguna::where('nim', $validated['id_pj'])->first();
+            $pj->role = 'pj';
+            $pj->id_ekstrakurikuler = $ekskul->id_ekstrakurikuler;
+            $pj->save();
+        });
+    
+        return back()->with('success', 'Ekstrakurikuler berhasil ditambahkan.');
     }
+    public function update(Request $request, Ekstrakurikuler $ekskul): RedirectResponse
+{
+    $validated = $request->validate([
+        'nama_ekstra' => 'required|string|max:255',
+        'hari' => 'required|string',
+        'jam' => 'required',
+        'kuota' => 'required|integer|min:1',
+        'keterangan' => 'nullable|string',
+        'id_pj' => 'required|exists:pengguna,nim',
+    ]);
+
+    DB::transaction(function () use ($ekskul, $validated) {
+        $ekskul->update($validated);
+
+        // Reset PJ lama jika berbeda
+        Pengguna::where('id_ekstrakurikuler', $ekskul->id_ekstrakurikuler)
+            ->where('role', 'pj')
+            ->where('nim', '!=', $validated['id_pj'])
+            ->update(['role' => 'warga']);
+
+        // Update PJ baru
+        Pengguna::where('nim', $validated['id_pj'])->update([
+            'role' => 'pj',
+            'id_ekstrakurikuler' => $ekskul->id_ekstrakurikuler,
+        ]);
+    });
+
+    return back()->with('success', 'Ekstrakurikuler berhasil diupdate.');
+}
 
     /**
      * Mengeluarkan seorang anggota dari ekstrakurikuler utama.
@@ -88,6 +136,15 @@ class EkstrakurikulerController extends Controller
 
         return back()->with('success', "Anggota '{$pengguna->nama}' berhasil dikeluarkan dari ekstrakurikuler.");
     }
+    public function removeAllMembers(Ekstrakurikuler $ekskul): RedirectResponse
+    {
+        Pengguna::where('id_ekstrakurikuler', $ekskul->id_ekstrakurikuler)
+            ->whereIn('role', ['warga', 'musahil']) // ✅ hanya role tertentu
+            ->update(['id_ekstrakurikuler' => null]);
+    
+        return back()->with('success', 'Semua peserta (warga & musahil) berhasil dikeluarkan dari ekstrakurikuler.');
+    }
+    
 
     /**
      * Menugaskan seorang anggota menjadi PJ untuk ekstrakurikuler ini.
@@ -123,7 +180,7 @@ class EkstrakurikulerController extends Controller
             DB::transaction(function () use ($ekstrakurikuler, $pjLama) {
                 $ekstrakurikuler->id_pj = null;
                 $ekstrakurikuler->save();
-                $pjLama->role = 'warga';
+                $pjLama->role = 'musahil';
                 $pjLama->save();
             });
             return back()->with('success', "Status PJ untuk {$pjLama->nama} berhasil dicabut.");

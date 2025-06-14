@@ -32,7 +32,7 @@
                         <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg mt-2">
                             <p class="font-bold">{{ $ekskul->penanggungJawab->nama }} <span class="font-normal opacity-70">({{ $ekskul->penanggungJawab->nim }})</span></p>
                             {{-- Tombol ini sekarang memicu modal konfirmasi --}}
-                            <button @click="showModal = true; modalTitle = 'Konfirmasi Cabut Akses'; modalMessage = 'Anda yakin ingin mencabut status PJ dari pengguna ini?'; modalActionUrl = '{{ route('admin.ekstrakurikuler.members.revoke', $ekskul) }}'; modalMethod = 'POST';" class="btn btn-sm btn-error">Cabut Akses PJ</button>
+                            <button @click="showModal = true; modalTitle = 'Konfirmasi Cabut Akses'; modalMessage = 'Anda yakin ingin mencabut status PJ dari pengguna ini?'; modalActionUrl = '{{ route('admin.ekstrakurikuler.members.revoke', $ekskul) }}'; modalMethod = 'POST';" class="btn btn-error">Cabut Akses PJ</button>
                         </div>
                     @else
                         <form action="{{ route('admin.ekstrakurikuler.members.assign', $ekskul) }}" method="POST" class="mt-2">
@@ -60,30 +60,44 @@
                         <form action="{{ route('admin.ekstrakurikuler.members.add', $ekskul) }}" method="POST" class="mt-4 sm:mt-0">
                              @csrf
                              <div class="join">
-                                 <select name="nim_anggota" class="select select-bordered select-sm join-item" required>
+                                 <select name="nim_anggota" class="select select-bordered select join-item" required>
                                      <option disabled selected value="">Pilih Calon Anggota Baru</option>
                                      @foreach($calonAnggota as $calon)
                                          <option value="{{ $calon->nim }}">{{ $calon->nama }} ({{ $calon->nim }})</option>
                                      @endforeach
                                  </select>
-                                 <button type="submit" class="btn btn-sm btn-primary join-item">Tambahkan</button>
+                                 <button type="submit" class="btn  btn-primary join-item">Tambahkan</button>
                              </div>
                          </form>
+                            <button 
+                                @click="
+                                    showModal = true;
+                                    modalTitle = 'Konfirmasi Keluarkan Semua';
+                                    modalMessage = 'Apakah Anda yakin ingin mengeluarkan semua peserta dari ekstrakurikuler ini?';
+                                    modalActionUrl = '{{ route('admin.ekstrakurikuler.members.removeAll', $ekskul) }}';
+                                    modalMethod = 'DELETE';
+                                "
+                                class="btn btn-error btn-outline btn-sm ms-2">
+                                <i class="fas fa-trash-alt me-1"></i> Keluarkan Semua
+                            </button>
                     </div>
 
                     <div class="overflow-x-auto mt-4">
                         <table class="table w-full">
-                            <thead><tr><th>NIM</th><th>Nama</th><th class="text-center">Aksi</th></tr></thead>
+                            <thead><tr><th>NIM</th><th>Nama</th><th>Role</th><th class="text-center">Aksi</th></tr></thead>
                             <tbody>
                                 @forelse($ekskul->pesertas as $peserta)
-                                <tr class="hover">
-                                    <td>{{ $peserta->nim }}</td>
-                                    <td>{{ $peserta->nama }}</td>
-                                    <td class="text-center">
-                                        {{-- Tombol Keluarkan dengan Modal Konfirmasi --}}
-                                        <button @click="showModal = true; modalTitle = 'Konfirmasi Keluarkan Anggota'; modalMessage = 'Keluarkan {{ addslashes($peserta->nama) }}?'; modalActionUrl = '{{ route('admin.ekstrakurikuler.members.remove', ['ekstrakurikuler' => $ekskul, 'pengguna' => $peserta]) }}'; modalMethod = 'DELETE';" class="btn btn-xs btn-error btn-outline">Keluarkan</button>
-                                    </td>
-                                </tr>
+                                    @if(in_array($peserta->role, ['musahil', 'warga']))
+                                        <tr class="hover">
+                                            <td>{{ $peserta->nim }}</td>
+                                            <td>{{ $peserta->nama }}</td>
+                                            <td><span>{{ ($peserta->role) }}</span></td>
+                                            <td class="text-center">
+                                                {{-- Tombol Keluarkan dengan Modal Konfirmasi --}}
+                                                <button @click="showModal = true; modalTitle = 'Konfirmasi Keluarkan Anggota'; modalMessage = 'Keluarkan {{ addslashes($peserta->nama) }}?'; modalActionUrl = '{{ route('admin.ekstrakurikuler.members.remove', ['ekstrakurikuler' => $ekskul -> id_ekstrakurikuler, 'pengguna' => $peserta]) }}'; modalMethod = 'DELETE';" class="btn btn-xs btn-error btn-outline">Keluarkan</button>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @empty
                                 <tr><td colspan="3" class="text-center p-4">Belum ada peserta.</td></tr>
                                 @endforelse
@@ -114,4 +128,5 @@
 
         </div>
     </div>
+
 </x-app-layout>
