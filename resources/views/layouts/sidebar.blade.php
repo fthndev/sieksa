@@ -113,9 +113,6 @@
             </div>
         </div>
 
-        {{-- ======================================================= --}}
-        {{-- ============ PENAMBAHAN LINK ABSENSI DI SINI ============ --}}
-        {{-- ======================================================= --}}
         
         {{-- 3. Link untuk Fitur Absensi (Dinamis berdasarkan Role) --}}
         @if(Auth::user()->hasRole('warga') || Auth::user()->hasRole('musahil'))
@@ -154,9 +151,13 @@
                 <h3 class="px-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Manajemen Sistem</h3>
                 <div class="mt-2 space-y-1">
                     {{-- Ganti href dengan route manajemen yang sesuai nanti --}}
-                    <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                    <a href="{{route('admin.pengguna.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
                         <i class="fas fa-users-cog me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Pengguna
+                    </a>
+                    <a href="{{route('admin.users.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-users-cog me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Akun
                     </a>
                     <a href="{{route('admin.ekstrakurikuler.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
                         <i class="fas fa-puzzle-piece me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
@@ -166,11 +167,11 @@
                         <i class="fas fa-calendar-alt me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Jadwal
                     </a>
-                    <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                    <a href="{{route('admin.daftar_materi_ekstra')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
                         <i class="fas fa-book-open me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Materi
                     </a>
-                     <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                     <a href="{{route('admin.daftar_absensi_ekstra')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
                         <i class="fas fa-clipboard-list me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Absensi
                     </a>
