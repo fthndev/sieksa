@@ -54,8 +54,8 @@
                         <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                             <p><strong class="font-medium text-slate-800 dark:text-slate-100">Nama Kegiatan:</strong> {{ $ekstrakurikulerYangDiikuti->nama_ekstra }}</p>
                             <p><strong class="font-medium text-slate-800 dark:text-slate-100">Jadwal:</strong> Setiap hari {{ $ekstrakurikulerYangDiikuti->hari ?: '-' }}, pukul {{ $ekstrakurikulerYangDiikuti->jam ? \Carbon\Carbon::parse($ekstrakurikulerYangDiikuti->jam)->format('H:i') : '-' }}</p>
-                            @if(isset($ekstrakurikulerYangDiikuti->kouta)) {{-- Menggunakan 'kouta' sesuai skema Anda --}}
-                                <p><strong class="font-medium text-slate-800 dark:text-slate-100">Kuota Ekskul Ini:</strong> {{ $ekstrakurikulerYangDiikuti->kouta }} peserta</p>
+                            @if(isset($ekstrakurikulerYangDiikuti->kuota)) {{-- Menggunakan 'kuota' sesuai skema Anda --}}
+                                <p><strong class="font-medium text-slate-800 dark:text-slate-100">Kuota Ekskul Ini:</strong> {{ $ekstrakurikulerYangDiikuti->kuota }} peserta</p>
                             @endif
                         </div>
                     @else
@@ -85,9 +85,9 @@
                                             , <i class="fas fa-clock me-1 opacity-70"></i> {{ \Carbon\Carbon::parse($ekskul->jam)->format('H:i') }}
                                             @endif
                                         </p>
-                                        @if(isset($ekskul->kouta))
+                                        @if(isset($ekskul->kuota))
                                             <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                                                <i class="fas fa-users me-1 opacity-70"></i> Kuota: {{ $ekskul->kouta }}
+                                                <i class="fas fa-users me-1 opacity-70"></i> Kuota: {{ $ekskul->kuota }}
                                             </p>
                                         @endif
                                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3 min-h-[3em]">{{ Str::limit($ekskul->ketrangan ?: 'Tidak ada deskripsi tambahan.', 80) }}</p>
@@ -181,7 +181,7 @@
             <div class="text-slate-600 dark:text-slate-300 text-sm space-y-2">
                 <p><strong>Hari:</strong> <span x-text="detailData.hari ?? '-'"></span></p>
                 <p><strong>Jam:</strong> <span x-text="detailData.jam ?? '-'"></span></p>
-                <p><strong>Kuota:</strong> <span x-text="detailData.kouta ?? '-'"></span></p>
+                <p><strong>Kuota:</strong> <span x-text="detailData.kuota ?? '-'"></span></p>
                 <p><strong>Deskripsi:</strong></p>
                 <p x-text="detailData.ketrangan ?? 'Tidak ada deskripsi.'" class="text-justify"></p>
             </div>
