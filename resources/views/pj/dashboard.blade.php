@@ -70,6 +70,17 @@
             @endif
 
             {{-- Daftar Ekstrakurikuler yang Dikelola --}}
+            @if(session('success'))
+                <div id="success-alert" role="alert" class="alert alert-success shadow-lg mb-6">
+                    <div><i class="fas fa-check-circle"></i><span>{{ session('success') }}</span></div>
+                </div>
+            @endif
+            @if(session('error'))
+                <div id="error-alert" role="alert" class="alert alert-error shadow-lg mb-6">
+                    <div><i class="fas fa-times-circle"></i><span>{{ session('error') }}</span></div>
+                </div>
+            @endif
+
             <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-md sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
@@ -85,14 +96,13 @@
                             </a>
                         @endif --}}
                     </div>
-
                     @if ($listEkstrakurikulerDikelola && $listEkstrakurikulerDikelola->count() > 0)
                         <div class="space-y-6">
                             @foreach ($listEkstrakurikulerDikelola as $ekskul)
                                 <h4 class="text-md font-semibold text-slate-800 dark:text-slate-100">{{ $ekskul->nama_ekstra }}</h4> 
                                     {{-- Jadwal Display --}}
                                     <p class="text-xs text-slate-500 dark:text-slate-400" id="jadwal-display-{{ $ekskul->id_ekstrakurikuler }}">
-                                        Jadwal: {{ $ekskul->hari ?: '-' }} - {{ $ekskul->jam ? \Carbon\Carbon::parse($ekskul->jam)->format('H:i') : '-' }} | Kuota: {{ $ekskul->kouta ?? 'N/A' }}
+                                        Jadwal: {{ $ekskul->hari ?: '-' }} - {{ $ekskul->jam ? \Carbon\Carbon::parse($ekskul->jam)->format('H:i') : '-' }} | Kuota: {{ $ekskul->kuota ?? 'N/A' }}
                                     </p>
 
                                     {{-- Jadwal Form (hidden by default) --}}
@@ -100,7 +110,7 @@
                                         @csrf
                                         @method('PUT')
                                         <div class="flex gap-2 items-center">
-                                            <select name="hari" class="select select select-bordered">
+                                            <select name="hari" class="select select-bordered">
                                                 @foreach(['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu','Libur'] as $hari)
                                                     <option value="{{ $hari }}" {{ $ekskul->hari == $hari ? 'selected' : '' }}>{{ $hari }}</option>
                                                 @endforeach
@@ -136,45 +146,53 @@
         </div>
     </div>
     <script>
-function toggleEdit(id) {
-    const display = document.getElementById(`jadwal-display-${id}`);
-    const form = document.getElementById(`jadwal-form-${id}`);
-    const btnEdit = document.getElementById(`btn-edit-${id}`);
-    const btnDetail = document.getElementById(`btn-detail-${id}`);
+        document.addEventListener('DOMContentLoaded', function () {
+            ['success-alert', 'error-alert'].forEach(id => {
+                const alertBox = document.getElementById(id);
+                if (alertBox) {
+                    setTimeout(() => {
+                        alertBox.style.transition = 'opacity 0.5s ease';
+                        alertBox.style.opacity = '0';
+                        setTimeout(() => alertBox.remove(), 500);
+                    }, 3000);
+                }
+            });
+        });
+        function toggleEdit(id) {
+            const display = document.getElementById(`jadwal-display-${id}`);
+            const form = document.getElementById(`jadwal-form-${id}`);
+            const btnEdit = document.getElementById(`btn-edit-${id}`);
+            const btnDetail = document.getElementById(`btn-detail-${id}`);
 
-    // Cek apakah sedang mode edit
-    if (form.classList.contains('hidden')) {
-        display.classList.add('hidden');
-        form.classList.remove('hidden');
+            // Cek apakah sedang mode edit
+            if (form.classList.contains('hidden')) {
+                display.classList.add('hidden');
+                form.classList.remove('hidden');
 
-        btnEdit.textContent = 'Simpan';
-        btnEdit.setAttribute('onclick', `document.getElementById('jadwal-form-${id}').submit()`);
+                btnEdit.textContent = 'Simpan';
+                btnEdit.setAttribute('onclick', `document.getElementById('jadwal-form-${id}').submit()`);
 
-        btnDetail.textContent = 'Cancel';
-        btnDetail.setAttribute('href', '#');
-        btnDetail.setAttribute('onclick', `cancelEdit(${id})`);
-    }
-}
+                btnDetail.textContent = 'Cancel';
+                btnDetail.setAttribute('href', '#');
+                btnDetail.setAttribute('onclick', `cancelEdit(${id})`);
+            }
+        }
 
-function cancelEdit(id) {
-    const display = document.getElementById(`jadwal-display-${id}`);
-    const form = document.getElementById(`jadwal-form-${id}`);
-    const btnEdit = document.getElementById(`btn-edit-${id}`);
-    const btnDetail = document.getElementById(`btn-detail-${id}`);
+        function cancelEdit(id) {
+            const display = document.getElementById(`jadwal-display-${id}`);
+            const form = document.getElementById(`jadwal-form-${id}`);
+            const btnEdit = document.getElementById(`btn-edit-${id}`);
+            const btnDetail = document.getElementById(`btn-detail-${id}`);
 
-    form.classList.add('hidden');
-    display.classList.remove('hidden');
+            form.classList.add('hidden');
+            display.classList.remove('hidden');
 
-    btnEdit.textContent = 'Edit jadwal';
-    btnEdit.setAttribute('onclick', `toggleEdit(${id})`);
+            btnEdit.textContent = 'Edit jadwal';
+            btnEdit.setAttribute('onclick', `toggleEdit(${id})`);
 
-    btnDetail.textContent = 'Lihat Detail Peserta';
-    btnDetail.setAttribute('href', `/pj/dashboard`);
-    btnDetail.removeAttribute('onclick'); // pastikan onclick dihapus agar tidak bertabrakan
-}
-
-
-
-
-</script>
+            btnDetail.textContent = 'Lihat Detail Peserta';
+            btnDetail.setAttribute('href', `/pj/dashboard`);
+            btnDetail.removeAttribute('onclick'); // pastikan onclick dihapus agar tidak bertabrakan
+        }
+    </script>
 </x-app-layout>

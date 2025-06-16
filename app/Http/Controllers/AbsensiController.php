@@ -56,6 +56,10 @@ class AbsensiController extends Controller
                 $query->orderBy('nama', 'asc');
             }
         ]);
+        $penggunaList = Pengguna::where('role', 'warga', 'musahil')
+        ->where('id_ekstrakurikuler', $absensi->id_ekstrakurikuler)
+        ->whereNotIn('nim', $absensi->detailAbsensi->pluck('id_pengguna'))
+        ->get();
 
         // --- Logika Otorisasi yang Lebih Aman ---
 
@@ -71,7 +75,7 @@ class AbsensiController extends Controller
         }
 
         // Kirim data sesi absensi (yang sudah berisi semua relasi) ke view
-        return view('pj.absensi.detail', compact('absensi'));
+        return view('pj.absensi.detail', compact('absensi', 'penggunaList'));
     }
 
     /**
@@ -272,4 +276,20 @@ class AbsensiController extends Controller
 
         return response()->json(['success' => true, 'message' => $message]);
     }
+    public function storeDetail(Request $request, $id)
+{   
+    $request->validate([
+        'pengguna_id' => 'required|exists:pengguna,nim',
+        'status' => 'required|in:izin,sakit,alpha',
+    ]);
+    
+    DetailAbsensi::create([
+        'id_absensi' => $id,
+        'id_pengguna' => $request->pengguna_id,
+        'status' => $request->status,
+    ]);
+
+    return redirect()->back()->with('success', 'Data absensi berhasil ditambahkan.');
+}
+
 }

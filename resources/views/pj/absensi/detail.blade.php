@@ -37,7 +37,45 @@
 
                     <h3 class="card-title mt-6">Daftar Kehadiran Peserta</h3>
                     <p class="text-sm text-base-content/70 mb-1">Anda dapat mengubah status kehadiran setiap peserta secara manual jika diperlukan.</p>
-                    
+        
+                    <button onclick="openAddAbsensiModal()" class="btn btn-primary mb-4">
+                        + Tambah Absensi
+                    </button>
+
+                    <!-- Modal Tambah Absensi -->
+                    <div id="addAbsensiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+                        <div class="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg">
+                            <h3 class="text-xl font-semibold mb-4 text-center">Tambah Absensi Peserta</h3>
+                            <form method="POST" action="{{ route('pj.absensi.store_detail', $absensi->id_absensi) }}">
+                                @csrf
+                                <div class="mb-4">
+                                    <label class="label">Pilih Warga</label>
+                                    <select name="pengguna_id" class="select select-bordered w-full" required>
+                                        <option value="" disabled selected>-- Pilih Warga --</option>
+                                        @foreach ($penggunaList as $pengguna)
+                                            <option value="{{ $pengguna->nim }}">
+                                                {{ $pengguna->nim }} - {{ $pengguna->nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="label">Status Kehadiran</label>
+                                    <select name="status" class="select select-bordered w-full" required>
+                                        <option value="izin">Izin</option>
+                                        <option value="sakit">Sakit</option>
+                                        <option value="alpha">Alpha</option>
+                                    </select>
+                                </div>
+
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" onclick="closeAddAbsensiModal()" class="btn btn-secondary">Batal</button>
+                                    <button type="submit" class="btn btn-success">Simpan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                     @if ($absensi->detailAbsensi->isNotEmpty())
                         <div class="overflow-x-auto mt-4">
                             <table class="table w-full">
@@ -117,5 +155,16 @@
             }, 2000); // tampil selama 3 detik
         }
     });
+
+    function openAddAbsensiModal() {
+        document.getElementById('addAbsensiModal').classList.remove('hidden');
+        document.getElementById('addAbsensiModal').classList.add('flex');
+    }
+
+    function closeAddAbsensiModal() {
+        document.getElementById('addAbsensiModal').classList.add('hidden');
+        document.getElementById('addAbsensiModal').classList.remove('flex');
+    }
+
 </script>
 </x-app-layout>
