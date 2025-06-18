@@ -115,6 +115,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
             Route::get('/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'index'])->name('ekstrakurikuler.index');
+            Route::post('/ekstrakurikuler/toggle-status', [AdminEkstrakurikulerController::class, 'toggleStatus'])->name('ekstrakurikuler.toggleStatus');
+
                 // Halaman untuk menampilkan & mengelola anggota
             Route::get('/ekstrakurikuler/{ekstrakurikuler}/kelola-anggota', [AdminEkstrakurikulerController::class, 'showMembers'])->name('ekstrakurikuler.members');
             Route::post('/{ekstrakurikuler}/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');

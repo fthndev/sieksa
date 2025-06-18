@@ -25,11 +25,16 @@ class EkstrakurikulerController extends Controller
         $calonPj = Pengguna::whereNull('id_ekstrakurikuler')
                            ->whereIn('role', [ 'musahil'])
                            ->get();
+
+        $statusAktif = Ekstrakurikuler::first()?->status ?? 'tutup';
+        $data = Ekstrakurikuler::all();
     
         return view('admin.ekstrakurikuler.index', [
             'user' => Auth::user(),
             'listEkstrakurikuler' => $listEkstrakurikuler,
             'calonPj' => $calonPj, // ⬅️ kirim ke view
+            'statusAktif' => $statusAktif,
+            'data' => $data
         ]);
     }
     
@@ -97,7 +102,21 @@ class EkstrakurikulerController extends Controller
             return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
-    
+
+    public function toggleStatus()
+    {
+    $ekstrakurikulerAktif = Ekstrakurikuler::where('status', 'buka')->exists();
+
+    if ($ekstrakurikulerAktif) {
+        Ekstrakurikuler::where('status', 'buka')->update(['status' => 'tutup']);
+        return redirect()->back()->with('tutup', 'Seluruh ekstrakurikuler berhasil ditutup.');
+    } else {
+        Ekstrakurikuler::where('status', 'tutup')->update(['status' => 'buka']);
+        return redirect()->back()->with('status', 'Seluruh ekstrakurikuler berhasil dibuka.');
+    }
+    }   
+
+
 
     public function destroy($id)
     {
@@ -147,8 +166,8 @@ class EkstrakurikulerController extends Controller
             $validated = validator($data, [
                 'nama_ekstra' => 'required|string|max:255',
                 'hari'        => 'required|string',
-                'jam'         => 'required|date_format:H:i',
                 'kuota'       => 'required|integer|min:1',
+                'jam'         => 'required',
                 'keterangan'  => 'nullable|string',
             ])->validate();
     
@@ -159,7 +178,7 @@ class EkstrakurikulerController extends Controller
     
         } catch (\Illuminate\Database\QueryException $e) {
             // Tangkap error trigger (jadwal bentrok)
-            if (str_contains($e->getMessage(), 'Jadwal ini bentrok dnegan ekstra lainnya')) {
+            if (str_contains($e->getMessage(), 'Jadwal ini bentrok dengan ekstra lainnya')) {
                 return redirect()->back()->with('error', 'Gagal: Jadwal ini bentrok dengan ekstrakurikuler lainnya.');
             }
     
@@ -168,9 +187,6 @@ class EkstrakurikulerController extends Controller
         }
     }
     
-
-
-
     
     
 

@@ -1,13 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 class="font-semibold text-xl text-base-content leading-tight">
                 Kelola Ekstrakurikuler
             </h2>
-            <div x-data="{ showTambah: false }">
+            <div x-data="{ showTambah: false }" class="flex gap-2">
                 <button @click="showTambah = true" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus"></i> Tambah Baru
                 </button>
+                <form method="POST" action="{{ route('admin.ekstrakurikuler.toggleStatus') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-sm"
+                        :class="'{{ $statusAktif == "buka" ? "btn-error" : "btn-success" }}'">
+                        <i class="fas fa-toggle-{{ $statusAktif == 'buka' ? 'off' : 'on' }}"></i>
+                        {{ ucfirst($statusAktif == 'buka' ? 'Tutup Semua' : 'Buka Semua') }}
+                    </button>
+                </form>
                 <div x-show="showTambah" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
                         <h2 class="text-lg font-semibold mb-4">Tambah Ekstrakurikuler</h2>
@@ -65,14 +73,13 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            @if(session('success'))
-                <div id="success-alert, 'error-alert');" role="alert" class="alert alert-success shadow-lg mb-6">
-                    <div><i class="fas fa-check-circle"></i><span>{{ session('success') }}</span></div>
+            @if(session('success') || session('status'))
+                <div id="success-alert" role="alert" class="alert alert-success shadow-lg mb-6">
+                    <div><i class="fas fa-check-circle"></i><span>{{ session('success') ?? session('status')}}</span></div>
                 </div>
-            @endif
-            @if(session('error'))
+            @elseif(session('error') || session('tutup'))
                 <div id="error-alert" role="alert" class="alert alert-error shadow-lg mb-6">
-                    <div><i class="fas fa-times-circle"></i><span>{{ session('error') }}</span></div>
+                    <div><i class="fas fa-times-circle"></i><span>{{ session('error') ?? session('tutup') }}</span></div>
                 </div>
             @endif
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

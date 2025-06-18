@@ -65,6 +65,9 @@ class EkstrakurikulerDetailController extends Controller
             if ($user->id_ekstrakurikuler){
                 return redirect()->back()->with('error', 'Gagal: Anda sudah mendaftar Ekstrakurikuler');
             }
+            if ($ekskul->status==='tutup'){
+                return redirect()->back()->with('error', 'Gagal: Ekstrakurikuler belum dibuka');
+            }
 
             try {
                 $user->id_ekstrakurikuler = $ekskul->id_ekstrakurikuler;
