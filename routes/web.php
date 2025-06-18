@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/dashboard', [MusahilDashboardController::class, 'index'])->name('dashboard');
             Route::get('/list-warga', [ListWargaDidampingiController::class, 'index'])->name('list-warga');
-            Route::get('/absensi', [AbsensiController::class, 'tampilkanHalamanAbsensiWarga'])->name('absensi_ekstra');
+            Route::get('/absensi', [AbsensiController::class, 'tampilkanHalamanAbsensiMusahil'])->name('absensi_ekstra');
             Route::get('/ekstrakurikuler/{ekstrakurikuler}', [MusahilEkstrakurikulerDetailController::class, 'show'])
               ->name('detail_ekstra');
             Route::get('/daftar_orang/{ekskul}', function (Ekstrakurikuler $ekskul){
@@ -104,7 +104,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/daftar_orang/{ekskul}', function (Ekstrakurikuler $ekskul){
               return view('pj.daftar_orang', ['ekskul' => $ekskul, 'orang' => $ekskul -> pesertas]);
                 }) ->name('daftar_orang_ekstra');
+            Route::get('/absensi/detail/{absensi}/{ekstra}', [AbsensiController::class, 'return_view'])->name('detail_absensi_table');
+            Route::get('/absensi/detail/{absensi}/{ekstra}/pdf', [AbsensiController::class, 'return_view_pdf'])->name('detail_absensi_table_pdf');
+            Route::get('/absensi/detail/{absensi}/{ekstra}/download', [AbsensiController::class, 'excel_download'])->name('download_excel');
             });
+            
+            // routes/web.phproute('pj.detail_absensi_table
     Route::middleware('role:admin')
     ->prefix('admin')
         ->name('admin.')

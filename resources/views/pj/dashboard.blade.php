@@ -1,4 +1,7 @@
 {{-- resources/views/pj/dashboard.blade.php --}}
+<title>
+    Dashboard - PJ
+</title>
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
@@ -89,11 +92,17 @@
                     @if ($listEkstrakurikulerDikelola && $listEkstrakurikulerDikelola->count() > 0)
                         <div class="space-y-6">
                             @foreach ($listEkstrakurikulerDikelola as $ekskul)
-                                <h4 class="text-md font-semibold text-slate-800 dark:text-slate-100">{{ $ekskul->nama_ekstra }}</h4> 
+                                @php
+                                    $kuota = $ekskul->kuota ?? 0;
+                                    $jumlahPeserta = $ekskul && $ekskul->pesertas ? $ekskul->pesertas->count() : 0;
+                                    $kuota_ekstra_now = $kuota - $jumlahPeserta;
+                                @endphp
+                                <h4 class="text-md font-semibold text-slate-800 dark:text-slate-100">{{ ucwords($ekskul->nama_ekstra) }}</h4> 
                                     {{-- Jadwal Display --}}
                                     <p class="text-xs text-slate-500 dark:text-slate-400" id="jadwal-display-{{ $ekskul->id_ekstrakurikuler }}">
-                                        Jadwal: {{ $ekskul->hari ?: '-' }} - {{ $ekskul->jam ? \Carbon\Carbon::parse($ekskul->jam)->format('H:i') : '-' }} | Kuota: {{ $ekskul->kouta ?? 'N/A' }}
+                                        Jadwal: {{ $ekskul->hari ?: '-' }} - {{ $ekskul->jam ? \Carbon\Carbon::parse($ekskul->jam)->format('H:i') : '-' }} | Kuota: {{ $ekskul->kuota ?? 'N/A' }} 
                                     </p>
+                                    <span class="text-green-600 dark:text-green-400 text-xs dark:text-slate-400">Tersisa: {{ $kuota_ekstra_now }}</span>
 
                                     {{-- Jadwal Form (hidden by default) --}}
                                     <form id="jadwal-form-{{ $ekskul->id_ekstrakurikuler }}" action="{{ route('pj.dashboards', ['id' => $ekskul->id_ekstrakurikuler]) }}" method="POST" class="hidden">

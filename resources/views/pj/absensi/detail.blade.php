@@ -1,3 +1,6 @@
+<title>
+    Detail Kehadiran
+</title>
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -10,12 +13,11 @@
                 </p>
             </div>
             <a href="{{ route('pj.absensi.index') }}" {{-- Mengarah ke halaman manajemen absensi PJ --}}
-               class="btn btn-sm btn-ghost">
+               class="btn btn-sm btn-ghost bg-red-400">
                 <i class="fas fa-arrow-left me-2"></i>Kembali ke Manajemen Absensi
             </a>
         </div>
     </x-slot>
-
     <div class="py-1">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
@@ -37,6 +39,16 @@
 
                     <h3 class="card-title mt-6">Daftar Kehadiran Peserta</h3>
                     <p class="text-sm text-base-content/70 mb-1">Anda dapat mengubah status kehadiran setiap peserta secara manual jika diperlukan.</p>
+                    {{-- Tombol Reporting --}}
+                    <div class="flex justify-end mt-4 gap-2">
+                        <a href="{{route('pj.detail_absensi_table', ['absensi' => $absensi->id_absensi, 'ekstra' => $absensi->id_ekstrakurikuler])}}"
+                            class="btn btn-sm btn-outline btn-success">
+                            <i class="fas fa-file-excel me-2"></i> Report Excel
+                        </a>
+                        <a href="{{route('pj.detail_absensi_table_pdf', ['absensi' => $absensi->id_absensi, 'ekstra' => $absensi->id_ekstrakurikuler])}}" class="btn btn-sm btn-outline btn-info">
+                            <i class="fas fa-print me-2"></i> Report PDF
+                        </a>
+                    </div>
                     
                     @if ($absensi->detailAbsensi->isNotEmpty())
                         <div class="overflow-x-auto mt-4">

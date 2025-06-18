@@ -119,7 +119,7 @@
         </div>
 
         {{-- 3. Link Lakukan Absensi --}}
-        @php $isAbsensiActive = request()->routeIs('absensi.scan'); @endphp
+        @php $isAbsensiActive = request()->routeIs('musahil.absensi_ekstra'); @endphp
         <a href="{{ route('musahil.absensi_ekstra') }}"
            class="{{ $baseLinkClass }} {{ $isAbsensiActive ? $activeLinkClass : $inactiveLinkClass }}"
            @click="if(window.innerWidth < 768) sidebarOpen = false">

@@ -1,3 +1,6 @@
+<title>
+    Kelola Absensi {{ ucwords($ekstrakurikuler->nama_ekstra) }}
+</title>
 <x-app-layout>
     {{-- Slot Header --}}
     <x-slot name="header">

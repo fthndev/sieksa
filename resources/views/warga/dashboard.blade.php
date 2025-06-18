@@ -1,4 +1,7 @@
 {{-- resources/views/warga/dashboard.blade.php --}}
+<title>
+    Dashboard - Warga
+</title>
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
@@ -14,6 +17,24 @@
                 position: 'top-end',    // pojok kanan atas
                 icon: 'success',
                 title: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        });
+    </script>
+    @elseif (session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: "{{ session('error') }}",
                 showConfirmButton: false,
                 timer: 4000,
                 timerProgressBar: true,
@@ -48,12 +69,17 @@
                         <i class="fas fa-award me-3 opacity-80"></i>
                         Ekstrakurikuler Utama Anda
                     </h3>
+                    @php
+                        $kuota = $ekstrakurikulerYangDiikuti->kuota ?? 0;
+                        $jumlahPeserta = $ekstrakurikulerYangDiikuti && $ekstrakurikulerYangDiikuti->pesertas ? $ekstrakurikulerYangDiikuti->pesertas->count() : 0;
+                        $tersisa = $kuota - $jumlahPeserta;
+                    @endphp
                     @if ($ekstrakurikulerYangDiikuti)
                         <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                             <p><strong class="font-medium text-slate-800 dark:text-slate-100">Nama Kegiatan:</strong> {{ $ekstrakurikulerYangDiikuti->nama_ekstra }}</p>
                             <p><strong class="font-medium text-slate-800 dark:text-slate-100">Jadwal:</strong> Setiap hari {{ $ekstrakurikulerYangDiikuti->hari ?: '-' }}, pukul {{ $ekstrakurikulerYangDiikuti->jam ? \Carbon\Carbon::parse($ekstrakurikulerYangDiikuti->jam)->format('H:i') : '-' }}</p>
-                            @if(isset($ekstrakurikulerYangDiikuti->kouta)) {{-- Menggunakan 'kouta' sesuai skema Anda --}}
-                                <p><strong class="font-medium text-slate-800 dark:text-slate-100">Kuota Ekskul Ini:</strong> {{ $ekstrakurikulerYangDiikuti->kouta }} peserta</p>
+                            @if(isset($ekstrakurikulerYangDiikuti->kuota)) {{-- Menggunakan 'kuota' sesuai skema Anda --}}
+                                <p><strong class="font-medium text-slate-800 dark:text-slate-100">Kuota Ekskul Ini:</strong> {{ $ekstrakurikulerYangDiikuti->kuota }} peserta, Tersisa {{$tersisa}}</p>
                             @endif
                         </div>
                     @else
@@ -75,6 +101,11 @@
                     @if ($semuaEkstrakurikuler && $semuaEkstrakurikuler->count() > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             @foreach ($semuaEkstrakurikuler as $ekskul)
+                                @php
+                                    $kuota = $ekskul->kuota ?? 0;
+                                    $jumlahPeserta = $ekskul && $ekskul->pesertas ? $ekskul->pesertas->count() : 0;
+                                    $kuota_ekstra_now = $kuota - $jumlahPeserta;
+                                @endphp
                                 <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col justify-between shadow hover:shadow-lg transition-shadow duration-200">
                                     <div>
                                         <h4 class="font-semibold text-md text-slate-800 dark:text-slate-100 mb-1">{{ ucwords($ekskul->nama_ekstra) }}</h4>
@@ -84,9 +115,11 @@
                                             , <i class="fas fa-clock me-1 opacity-70"></i> {{ \Carbon\Carbon::parse($ekskul->jam)->format('H:i') }}
                                             @endif
                                         </p>
-                                        @if(isset($ekskul->kouta))
-                                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                                                <i class="fas fa-users me-1 opacity-70"></i> Kuota: {{ $ekskul->kouta }}
+                                        @if(isset($ekskul->kuota))
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                                                <i class="fas fa-users me-1 opacity-70"></i>
+                                                <span>Kuota: {{ $ekskul->kuota }}</span>
+                                                <span class="text-green-600 dark:text-green-400">Tersisa: {{ $kuota_ekstra_now }}</span>
                                             </p>
                                         @endif
                                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3 min-h-[3em]">{{ Str::limit($ekskul->ketrangan ?: 'Tidak ada deskripsi tambahan.', 80) }}</p>
@@ -180,7 +213,7 @@
         <div class="text-slate-600 dark:text-slate-300 text-sm space-y-2">
             <p><strong>Hari:</strong> <span x-text="detailData.hari ?? '-'"></span></p>
             <p><strong>Jam:</strong> <span x-text="detailData.jam ?? '-'"></span></p>
-            <p><strong>Kuota:</strong> <span x-text="detailData.kouta ?? '-'"></span></p>
+            <p><strong>Kuota:</strong> <span x-text="detailData.kuota ?? '-'"></span></p>
             <p><strong>Deskripsi:</strong></p>
             <p x-text="detailData.ketrangan ?? 'Tidak ada deskripsi.'" class="text-justify"></p>
         </div>

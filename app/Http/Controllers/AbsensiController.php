@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
@@ -193,6 +193,7 @@ class AbsensiController extends Controller
     {
         /** @var \App\Models\Pengguna $user */
         $user = Auth::user();
+        $ekskul = $user->ekstrakurikuler;
 
         // Ambil histori absensi PRIBADI untuk musahil ini di semua ekskul yang mungkin dia hadiri
         $historiAbsensiPribadi = DetailAbsensi::where('id_pengguna', $user->nim)
@@ -203,7 +204,7 @@ class AbsensiController extends Controller
                                 ->select('detail_absensi.*')
                                 ->get();
 
-        return view('musahil.absensi', compact('user', 'historiAbsensiPribadi'));
+        return view('musahil.absensi', compact('user', 'historiAbsensiPribadi', 'ekskul'));
     }
 
     /**
@@ -236,40 +237,103 @@ class AbsensiController extends Controller
     /**
      * Mencatat kehadiran setelah scan QR.
      */
-    public function catatKehadiran(Absensi $absensi, Request $request): JsonResponse
+    public function catatKehadiran(Absensi $absensi, Request $request): JsonResponse|RedirectResponse
     {
         /** @var \App\Models\Pengguna $user */
-        $user = Auth::user();
+        $user = Auth::user(); // User sudah pasti ada karena middleware 'auth'
 
-        // Cek apakah user adalah peserta yang sah di ekstrakurikuler ini
+        // Pengecekan otorisasi (apakah pengguna berhak absen di ekskul ini)
         $isPesertaWarga = $user->hasRole('warga') && ($user->id_ekstrakurikuler == $absensi->id_ekstrakurikuler);
-        
-        // Untuk Musahil, kita bisa asumsikan mereka boleh absen di sesi manapun
-        // yang mereka dampingi atau hadiri. Logika bisa diperketat jika perlu.
-        $isMusahil = $user->hasRole('musahil');
-
+        $isMusahil = $user->hasRole('musahil'); // Musahil diasumsikan boleh ikut sesi manapun
         if (!$isPesertaWarga && !$isMusahil) {
-            return response()->json(['success' => false, 'message' => 'Anda tidak terdaftar sebagai peserta atau musahil di ekstrakurikuler ini.'], 403);
+            $errorMessage = 'Anda tidak terdaftar sebagai peserta atau musahil di ekstrakurikuler ini.';
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => $errorMessage], 403)
+                : back()->with('error', $errorMessage);
         }
 
-        // Cek apakah user sudah absen untuk sesi ini
-        $sudahAbsen = DetailAbsensi::where('id_absensi', $absensi->id_absensi)
-                                   ->where('id_pengguna', $user->nim)
-                                   ->exists();
-        if ($sudahAbsen) {
-            return response()->json(['success' => true, 'message' => 'Anda sudah tercatat hadir untuk sesi ini.']);
+        // Catat kehadiran menggunakan firstOrCreate untuk menghindari duplikasi
+        DetailAbsensi::firstOrCreate(
+            [
+                'id_absensi' => $absensi->id_absensi,
+                'id_pengguna' => $user->nim,
+            ],
+            [
+                'status' => 'hadir',
+                'note' => 'Absensi via QR Code.',
+            ]
+        );
+
+        $message = 'Kehadiran Anda untuk ' . $absensi->ekstrakurikuler->nama_ekstra . ' berhasil dicatat!';
+
+        // --- LOGIKA RESPON PINTAR ---
+        if ($request->wantsJson()) {
+            // Jika request datang dari scanner AJAX kita, kirim JSON
+            return response()->json(['success' => true, 'message' => $message]);
         }
 
-        // Catat kehadiran
-        DetailAbsensi::create([
-            'id_absensi' => $absensi->id_absensi,
-            'id_pengguna' => $user->nim,
-            'status' => 'hadir',
-            'note' => 'Absensi via QR Code pada ' . now()->toDateTimeString(),
+        // Jika tidak, ini adalah request browser biasa (setelah login atau sudah login),
+        // maka arahkan ke dashboard yang sesuai dengan notifikasi sukses.
+        $roleDashboard = $user->role . '.dashboard';
+        return redirect()->route($roleDashboard)->with('success', $message);
+    }
+
+    public function return_view(Absensi $absensi, Ekstrakurikuler $ekstra): View
+    {   
+
+    $user = Auth::user();
+    $parent_absensi = DB::table('absensi')
+       ->where('id_absensi', $absensi->id_absensi)
+       ->get()->first();
+    $peserta_ekstra = DB::table('Pengguna')
+       ->where('id_ekstrakurikuler', $ekstra->id_ekstrakurikuler)
+       ->whereIn('role', ['musahil', 'warga'])
+       ->get();
+
+        return view('pj.absensi.absensi_excel', [
+            'ekstra' => $peserta_ekstra,
+            'data_absensi' => $parent_absensi,
+            'data_pj' => $user
         ]);
+    }
+    public function return_view_pdf(Absensi $absensi, Ekstrakurikuler $ekstra): View
+    {   
 
-        $message = 'Kehadiran Anda untuk ekstrakurikuler ' . $absensi->ekstrakurikuler->nama_ekstra . ' berhasil dicatat!';
+    $user = Auth::user();
+    $parent_absensi = DB::table('absensi')
+       ->where('id_absensi', $absensi->id_absensi)
+       ->get()->first();
+    $peserta_ekstra = DB::table('Pengguna')
+       ->where('id_ekstrakurikuler', $ekstra->id_ekstrakurikuler)
+       ->whereIn('role', ['musahil', 'warga'])
+       ->get();
 
-        return response()->json(['success' => true, 'message' => $message]);
+        return view('pj.absensi.absensi_pdf', [
+            'ekstra' => $peserta_ekstra,
+            'data_absensi' => $parent_absensi,
+            'data_pj' => $user
+        ]);
+    }
+
+    public function excel_download(Absensi $absensi, Ekstrakurikuler $ekstra)
+    {   
+
+    $user = Auth::user();
+    $parent_absensi = DB::table('absensi')
+       ->where('id_absensi', $absensi->id_absensi)
+       ->get()->first();
+    $peserta_ekstra = DB::table('Pengguna')
+       ->where('id_ekstrakurikuler', $ekstra->id_ekstrakurikuler)
+       ->whereIn('role', ['musahil', 'warga'])
+       ->get();
+
+    
+    $filename = 'laporan_absensi_' . $parent_absensi->pertemuan . '.xls';
+    return response()->view('pj.absensi.download_absensi', [
+        'ekstra' => $peserta_ekstra,
+        'data_absensi' => $parent_absensi,
+        'data_pj' => $user
+    ])->header('Content-Type', 'application/vnd.ms-excel')
+    ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 }

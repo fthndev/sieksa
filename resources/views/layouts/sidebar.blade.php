@@ -72,7 +72,10 @@
                 :class="{'fa-chevron-down': !open, 'fa-chevron-up': open}"></i>
             </button>
 
-            
+        @php
+            $user = Auth::user();
+        @endphp
+        @if($user->hasRole('pj') || $user->hasRole('warga') || $user->hasRole('musahil'))
             <div x-show="open" x-transition ... class="mt-1 ms-4 ps-3 border-l-2 ..." x-cloak>
                 @php
                     $user = Auth::user();
@@ -112,12 +115,13 @@
                 @endif
             </div>
         </div>
+        @endif
 
         
         {{-- 3. Link untuk Fitur Absensi (Dinamis berdasarkan Role) --}}
         @if(Auth::user()->hasRole('warga') || Auth::user()->hasRole('musahil'))
             {{-- Link untuk Warga & Musahil membuka halaman scanner --}}
-            @php $isAbsensiActive = request()->routeIs('absensi.scan'); @endphp
+            @php $isAbsensiActive = request()->routeIs('warga.absensi_ekstra'); @endphp
             <a href="{{ route('warga.absensi_ekstra') }}"
                class="{{ $baseLinkClass }} {{ $isAbsensiActive ? $activeLinkClass : $inactiveLinkClass }}"
                @click="if(window.innerWidth < 768) sidebarOpen = false">

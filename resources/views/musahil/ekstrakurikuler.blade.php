@@ -1,4 +1,7 @@
-<x-app-layout>
+<title>
+    Materi - Ekstrakurikuler {{ucwords($ekskul->nama_ekstra)}}
+</title>
+<x-app-musahil-layout>
     <x-slot name="header">
         <div class="flex flex-col items-start justify-between gap-10">
             <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
@@ -79,4 +82,4 @@
             @endforeach
         </div>
     </div>
-</x-app-layout>
+</x-app-musahil-layout>

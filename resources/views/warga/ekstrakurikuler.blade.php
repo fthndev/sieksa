@@ -1,3 +1,6 @@
+<title>
+    Materi - Ekstrakurikuler {{ucwords($ekskul->nama_ekstra)}}
+</title>
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col items-start justify-between gap-10">
