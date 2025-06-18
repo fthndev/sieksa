@@ -1,4 +1,7 @@
-<x-app-layout>
+<title>
+    Peserta Ekstrakurikuler
+</title>
+<x-app-musahil-layout>
     <x-slot name="header">
         <div class="flex flex-col items-start justify-between gap-10">
             <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
@@ -87,4 +90,4 @@
             @endif
         @endforeach
     </div>
-</x-app-layout>
+</x-app-musahil-layout>

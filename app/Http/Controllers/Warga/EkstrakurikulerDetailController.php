@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ekstrakurikuler;
 use App\Models\Pengguna;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 class EkstrakurikulerDetailController extends Controller
@@ -65,15 +66,20 @@ class EkstrakurikulerDetailController extends Controller
             if ($user->id_ekstrakurikuler){
                 return redirect()->back()->with('error', 'Gagal: Anda sudah mendaftar Ekstrakurikuler');
             }
+            if ($ekskul->status==='tutup'){
+                return redirect()->back()->with('error', 'Gagal: Ekstrakurikuler belum dibuka');
+            }
 
             try {
                 $user->id_ekstrakurikuler = $ekskul->id_ekstrakurikuler;
                 $user->save();
-            } catch (\Exception $e) {
-                dd([
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
+            } catch (QueryException $e) {
+                if (str_contains($e->getMessage(), 'kuota pendaftaran penuh')) {
+                    return redirect()->back()->with('error', 'Gagal: Kuota ekstrakurikuler sudah penuh.');
+                }
+            }
+            catch (\Exception $e) {
+                 return redirect()->back()->with('error', 'Kesalahan Umum: ' . $e->getMessage());
             }
 
             return redirect()->route('warga.dashboard')->with('success', 'Berhasil mendaftar Ekstrakurikuler');

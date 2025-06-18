@@ -2,6 +2,9 @@
 
 {{-- Langsung gunakan layout khusus musahil. --}}
 {{-- Asumsi bahwa route ke halaman ini sudah dilindungi agar hanya musahil yang bisa mengakses. --}}
+<title>
+    List -Warga
+</title>
 <x-app-layout>
 
     {{-- Slot untuk Header Halaman --}}
@@ -31,10 +34,7 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ID Pendampingan
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ID Musahil Pendamping
+                                            Nomor
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             NIM Warga
@@ -42,8 +42,14 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nama Warga
                                         </th>
-                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status Ekstrakurikuler
+                                        </th>
+                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nama Ekstrakurikuler
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Presentase Kehadiran
                                         </th>
                                          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Beri Pesan
@@ -52,13 +58,30 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
+                                    @php $no = 0 @endphp
                                     @foreach ($list_dampingi as $damping)
+                                        @php
+                                            $absensi_detail_warga = \Illuminate\Support\Facades\DB::table('detail_absensi')
+                                                        ->where('id_pengguna', $damping->id_warga)
+                                                        ->get();
+                                            $absensi_ekstra = \Illuminate\Support\Facades\DB::table('absensi')
+                                                        ->where('id_ekstrakurikuler', $damping->id_ekstra_warga)
+                                                        ->get();
+                                            $ekstra = \Illuminate\Support\Facades\DB::table('ekstrakurikuler')
+                                                        ->where('id_ekstrakurikuler', $damping->id_ekstra_warga)
+                                                        ->first();
+                                            $total_kehadiran_warga = $absensi_detail_warga->count();
+                                            $total_absensi_ekstra = $absensi_ekstra->count();
+                                            $persentase = 0;
+                                            if ($total_absensi_ekstra > 0) {
+                                                $persentase = ($total_kehadiran_warga / $total_absensi_ekstra) * 100;
+                                                $persentase = number_format($persentase, 2);
+                                            }
+                                            $no += 1
+                                        @endphp
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {{ $damping->id_pendaping }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $damping->id_musahil_pendamping }}
+                                                {{ $no }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $damping->id_warga }}
@@ -81,6 +104,22 @@
                                                     </span>
                                                 </div>
                                                 @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $ekstra && $ekstra->nama_ekstra ? ucwords($ekstra->nama_ekstra) : 'None' }}
+                                            </td>
+                                            @php
+                                                    $color = 'bg-gray-200 text-gray-800';
+                                                    if ($persentase >= 75) {
+                                                        $color = 'bg-green-100 text-green-800';
+                                                    } elseif ($persentase >= 50) {
+                                                        $color = 'bg-yellow-100 text-yellow-800';
+                                                    } else {
+                                                        $color = 'bg-red-100 text-red-800';
+                                                    }
+                                                @endphp
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {{$color}}">
+                                                {{ $persentase}}%
                                             </td>
                                             <td>
                                                 <div class="flex justify-center">

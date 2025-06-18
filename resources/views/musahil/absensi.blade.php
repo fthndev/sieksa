@@ -1,4 +1,7 @@
-<x-musahil-layout>
+<title>
+    Absensi - Musahil
+</title>
+<x-app-musahil-layout>
     {{-- Slot Header --}}
     <x-slot name="header">
         @if($ekskul)
@@ -177,4 +180,4 @@
         });
     </script>
     @endpush
-</x-musahil-layout>
+</x-app-musahil-layout>

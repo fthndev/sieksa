@@ -1,4 +1,7 @@
 {{-- resources/views/pj/ekstrakurikuler/peserta.blade.php --}}
+<title>
+    Peserta - {{ $ekskul->nama_ekstra }}
+</title>
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">

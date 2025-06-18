@@ -1,3 +1,6 @@
+<title>
+    Absensi
+</title>
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-base-content leading-tight">
@@ -25,7 +28,7 @@
                 <div class="card bg-base-100 shadow-xl" x-data="absensiGenerator()">
                     <div class="card-body">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                            <h2 class="card-title text-red-600 dark:text-red-400">{{ $ekskul->nama_ekstra }}</h2>
+                            <h2 class="card-title text-red-600 dark:text-red-400">{{ ucwords($ekskul->nama_ekstra) }}</h2>
                             <button @click="openNewSessionModal('{{ $ekskul->id_ekstrakurikuler }}', '{{ addslashes($ekskul->nama_ekstra) }}')" class="btn btn-primary btn-sm mt-2 sm:mt-0">
                                 <i class="fas fa-qrcode me-2"></i>Mulai Sesi Baru
                             </button>

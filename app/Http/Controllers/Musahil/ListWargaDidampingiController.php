@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; // Import DB Facade
 use Illuminate\View\View;
 use App\Models\User; // Asumsi model user Anda adalah App\Models\User, tapi kita akan pakai tabel 'pengguna' langsung
+use Illuminate\Http\RedirectResponse;
 
 class ListWargaDidampingiController extends Controller
 {
     /**
      * Menampilkan daftar warga yang didampingi oleh musahil yang sedang login.
      */
-    public function index(): View
+    public function index(): View | RedirectResponse
     {
         /** @var User $loggedInUser */
         $loggedInUser = Auth::user();
@@ -41,7 +42,8 @@ class ListWargaDidampingiController extends Controller
                 'musahil_pendamping.id_warga', // Ini adalah NIM warga
                 'pengguna.nama as nama_warga',
                 'pengguna.id_ekstrakurikuler as id_ekstra_warga',
-                'pengguna.email as email_warga' // <-- Disesuaikan dengan skema Anda: 'pengguna.nama'
+                'pengguna.email as email_warga',
+                'pengguna.nim as nim_warga'
             )
             ->get();
 

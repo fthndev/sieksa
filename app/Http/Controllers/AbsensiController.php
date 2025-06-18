@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
@@ -56,6 +56,10 @@ class AbsensiController extends Controller
                 $query->orderBy('nama', 'asc');
             }
         ]);
+        $penggunaList = Pengguna::where('role', 'warga', 'musahil')
+        ->where('id_ekstrakurikuler', $absensi->id_ekstrakurikuler)
+        ->whereNotIn('nim', $absensi->detailAbsensi->pluck('id_pengguna'))
+        ->get();
 
         // --- Logika Otorisasi yang Lebih Aman ---
 
@@ -71,7 +75,7 @@ class AbsensiController extends Controller
         }
 
         // Kirim data sesi absensi (yang sudah berisi semua relasi) ke view
-        return view('pj.absensi.detail', compact('absensi'));
+        return view('pj.absensi.detail', compact('absensi', 'penggunaList'));
     }
 
     /**
@@ -193,6 +197,7 @@ class AbsensiController extends Controller
     {
         /** @var \App\Models\Pengguna $user */
         $user = Auth::user();
+        $ekskul = $user->ekstrakurikuler;
 
         // Ambil histori absensi PRIBADI untuk musahil ini di semua ekskul yang mungkin dia hadiri
         $historiAbsensiPribadi = DetailAbsensi::where('id_pengguna', $user->nim)
@@ -203,7 +208,7 @@ class AbsensiController extends Controller
                                 ->select('detail_absensi.*')
                                 ->get();
 
-        return view('musahil.absensi', compact('user', 'historiAbsensiPribadi'));
+        return view('musahil.absensi', compact('user', 'historiAbsensiPribadi', 'ekskul'));
     }
 
     /**
@@ -276,4 +281,79 @@ class AbsensiController extends Controller
         $roleDashboard = $user->role . '.dashboard';
         return redirect()->route($roleDashboard)->with('success', $message);
     }
+
+    public function return_view(Absensi $absensi, Ekstrakurikuler $ekstra): View
+    {   
+
+    $user = Auth::user();
+    $parent_absensi = DB::table('absensi')
+       ->where('id_absensi', $absensi->id_absensi)
+       ->get()->first();
+    $peserta_ekstra = DB::table('Pengguna')
+       ->where('id_ekstrakurikuler', $ekstra->id_ekstrakurikuler)
+       ->whereIn('role', ['musahil', 'warga'])
+       ->get();
+
+        return view('pj.absensi.absensi_excel', [
+            'ekstra' => $peserta_ekstra,
+            'data_absensi' => $parent_absensi,
+            'data_pj' => $user
+        ]);
+    }
+    public function return_view_pdf(Absensi $absensi, Ekstrakurikuler $ekstra): View
+    {   
+
+    $user = Auth::user();
+    $parent_absensi = DB::table('absensi')
+       ->where('id_absensi', $absensi->id_absensi)
+       ->get()->first();
+    $peserta_ekstra = DB::table('Pengguna')
+       ->where('id_ekstrakurikuler', $ekstra->id_ekstrakurikuler)
+       ->whereIn('role', ['musahil', 'warga'])
+       ->get();
+
+        return view('pj.absensi.absensi_pdf', [
+            'ekstra' => $peserta_ekstra,
+            'data_absensi' => $parent_absensi,
+            'data_pj' => $user
+        ]);
+    }
+
+    public function excel_download(Absensi $absensi, Ekstrakurikuler $ekstra)
+    {   
+
+    $user = Auth::user();
+    $parent_absensi = DB::table('absensi')
+       ->where('id_absensi', $absensi->id_absensi)
+       ->get()->first();
+    $peserta_ekstra = DB::table('Pengguna')
+       ->where('id_ekstrakurikuler', $ekstra->id_ekstrakurikuler)
+       ->whereIn('role', ['musahil', 'warga'])
+       ->get();
+
+    
+    $filename = 'laporan_absensi_' . $parent_absensi->pertemuan . '.xls';
+    return response()->view('pj.absensi.download_absensi', [
+        'ekstra' => $peserta_ekstra,
+        'data_absensi' => $parent_absensi,
+        'data_pj' => $user
+    ])->header('Content-Type', 'application/vnd.ms-excel')
+    ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+    }
+    public function storeDetail(Request $request, $id)
+{   
+    $request->validate([
+        'pengguna_id' => 'required|exists:pengguna,nim',
+        'status' => 'required|in:izin,sakit,alpha',
+    ]);
+    
+    DetailAbsensi::create([
+        'id_absensi' => $id,
+        'id_pengguna' => $request->pengguna_id,
+        'status' => $request->status,
+    ]);
+
+    return redirect()->back()->with('success', 'Data absensi berhasil ditambahkan.');
+}
+
 }

@@ -1,3 +1,6 @@
+<title>
+    Absensi - Warga
+</title>
 <x-app-layout>
     {{-- Slot Header --}}
     <x-slot name="header">
