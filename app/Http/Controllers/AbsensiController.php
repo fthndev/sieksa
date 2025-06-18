@@ -236,40 +236,44 @@ class AbsensiController extends Controller
     /**
      * Mencatat kehadiran setelah scan QR.
      */
-    public function catatKehadiran(Absensi $absensi, Request $request): JsonResponse
+    public function catatKehadiran(Absensi $absensi, Request $request): JsonResponse|RedirectResponse
     {
         /** @var \App\Models\Pengguna $user */
-        $user = Auth::user();
+        $user = Auth::user(); // User sudah pasti ada karena middleware 'auth'
 
-        // Cek apakah user adalah peserta yang sah di ekstrakurikuler ini
+        // Pengecekan otorisasi (apakah pengguna berhak absen di ekskul ini)
         $isPesertaWarga = $user->hasRole('warga') && ($user->id_ekstrakurikuler == $absensi->id_ekstrakurikuler);
-        
-        // Untuk Musahil, kita bisa asumsikan mereka boleh absen di sesi manapun
-        // yang mereka dampingi atau hadiri. Logika bisa diperketat jika perlu.
-        $isMusahil = $user->hasRole('musahil');
-
+        $isMusahil = $user->hasRole('musahil'); // Musahil diasumsikan boleh ikut sesi manapun
         if (!$isPesertaWarga && !$isMusahil) {
-            return response()->json(['success' => false, 'message' => 'Anda tidak terdaftar sebagai peserta atau musahil di ekstrakurikuler ini.'], 403);
+            $errorMessage = 'Anda tidak terdaftar sebagai peserta atau musahil di ekstrakurikuler ini.';
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => $errorMessage], 403)
+                : back()->with('error', $errorMessage);
         }
 
-        // Cek apakah user sudah absen untuk sesi ini
-        $sudahAbsen = DetailAbsensi::where('id_absensi', $absensi->id_absensi)
-                                   ->where('id_pengguna', $user->nim)
-                                   ->exists();
-        if ($sudahAbsen) {
-            return response()->json(['success' => true, 'message' => 'Anda sudah tercatat hadir untuk sesi ini.']);
+        // Catat kehadiran menggunakan firstOrCreate untuk menghindari duplikasi
+        DetailAbsensi::firstOrCreate(
+            [
+                'id_absensi' => $absensi->id_absensi,
+                'id_pengguna' => $user->nim,
+            ],
+            [
+                'status' => 'hadir',
+                'note' => 'Absensi via QR Code.',
+            ]
+        );
+
+        $message = 'Kehadiran Anda untuk ' . $absensi->ekstrakurikuler->nama_ekstra . ' berhasil dicatat!';
+
+        // --- LOGIKA RESPON PINTAR ---
+        if ($request->wantsJson()) {
+            // Jika request datang dari scanner AJAX kita, kirim JSON
+            return response()->json(['success' => true, 'message' => $message]);
         }
 
-        // Catat kehadiran
-        DetailAbsensi::create([
-            'id_absensi' => $absensi->id_absensi,
-            'id_pengguna' => $user->nim,
-            'status' => 'hadir',
-            'note' => 'Absensi via QR Code pada ' . now()->toDateTimeString(),
-        ]);
-
-        $message = 'Kehadiran Anda untuk ekstrakurikuler ' . $absensi->ekstrakurikuler->nama_ekstra . ' berhasil dicatat!';
-
-        return response()->json(['success' => true, 'message' => $message]);
+        // Jika tidak, ini adalah request browser biasa (setelah login atau sudah login),
+        // maka arahkan ke dashboard yang sesuai dengan notifikasi sukses.
+        $roleDashboard = $user->role . '.dashboard';
+        return redirect()->route($roleDashboard)->with('success', $message);
     }
 }
