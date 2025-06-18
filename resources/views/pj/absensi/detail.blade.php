@@ -40,21 +40,23 @@
                     <h3 class="card-title mt-6">Daftar Kehadiran Peserta</h3>
                     <p class="text-sm text-base-content/70 mb-1">Anda dapat mengubah status kehadiran setiap peserta secara manual jika diperlukan.</p>
                     {{-- Tombol Reporting --}}
-                    <div class="flex justify-end mt-4 gap-2">
-                        <a href="{{route('pj.detail_absensi_table', ['absensi' => $absensi->id_absensi, 'ekstra' => $absensi->id_ekstrakurikuler])}}"
-                            class="btn btn-sm btn-outline btn-success">
-                            <i class="fas fa-file-excel me-2"></i> Report Excel
-                        </a>
-                        <a href="{{route('pj.detail_absensi_table_pdf', ['absensi' => $absensi->id_absensi, 'ekstra' => $absensi->id_ekstrakurikuler])}}" class="btn btn-sm btn-outline btn-info">
-                            <i class="fas fa-print me-2"></i> Report PDF
-                        </a>
+                    <div class="flex justify-between items-center mt-2">
+                        <div class="flex items-center">
+                            <button onclick="openAddAbsensiModal()" class="btn btn-primary">
+                            + Tambah Absensi
+                            </button>
+                        </div>
+                        <div class="flex justify-end gap-2">
+                            <a href="{{route('pj.detail_absensi_table', ['absensi' => $absensi->id_absensi, 'ekstra' => $absensi->id_ekstrakurikuler])}}"
+                                class="btn btn-sm btn-outline btn-success">
+                                <i class="fas fa-file-excel me-2"></i> Report Excel
+                            </a>
+                            <a href="{{route('pj.detail_absensi_table_pdf', ['absensi' => $absensi->id_absensi, 'ekstra' => $absensi->id_ekstrakurikuler])}}" class="btn btn-sm btn-outline btn-info">
+                                <i class="fas fa-print me-2"></i> Report PDF
+                            </a>
+                        </div>
                     </div>
-                    
-        
-                    <button onclick="openAddAbsensiModal()" class="btn btn-primary mb-4">
-                        + Tambah Absensi
-                    </button>
-
+                
                     <!-- Modal Tambah Absensi -->
                     <div id="addAbsensiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
                         <div class="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg">
@@ -66,7 +68,7 @@
                                     <select name="pengguna_id" class="select select-bordered w-full" required>
                                         <option value="" disabled selected>-- Pilih Warga --</option>
                                         @foreach ($penggunaList as $pengguna)
-                                            <option value="{{ $pengguna->nim }}">
+                                         <option value="{{ $pengguna->nim }}">
                                                 {{ $pengguna->nim }} - {{ $pengguna->nama }}
                                             </option>
                                         @endforeach
