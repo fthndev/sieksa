@@ -25,11 +25,16 @@ class EkstrakurikulerController extends Controller
         $calonPj = Pengguna::whereNull('id_ekstrakurikuler')
                            ->whereIn('role', [ 'musahil'])
                            ->get();
+
+        $statusAktif = Ekstrakurikuler::first()?->status ?? 'tutup';
+        $data = Ekstrakurikuler::all();
     
         return view('admin.ekstrakurikuler.index', [
             'user' => Auth::user(),
             'listEkstrakurikuler' => $listEkstrakurikuler,
             'calonPj' => $calonPj, // ⬅️ kirim ke view
+            'statusAktif' => $statusAktif,
+            'data' => $data
         ]);
     }
     
@@ -60,63 +65,130 @@ class EkstrakurikulerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_ekstra' => 'required|string|max:255',
-            'hari' => 'required|string',
-            'jam' => 'required',
-            'kuota' => 'required|integer|min:1',
-            'keterangan' => 'string',
-            'id_pj' => 'required|exists:pengguna,nim',
+            'nama_ekstra'   => 'required|string|max:255',
+            'hari'          => 'required|string',
+            'jam'           => 'required',
+            'kuota'         => 'required|integer|min:1',
+            'keterangan'    => 'nullable|string',
+            'id_pj'         => 'required|exists:pengguna,nim',
         ]);
     
-        DB::transaction(function () use ($validated) {
-            // Buat ekstrakurikuler baru
-            $ekskul = Ekstrakurikuler::create([
-                'nama_ekstra' => $validated['nama_ekstra'],
-                'hari' => $validated['hari'],
-                'jam' => $validated['jam'],
-                'kuota' => $validated['kuota'],
-                'keterangan' => $validated['keterangan'],
-                'id_pj' => $validated['id_pj'],
-            ]);
+        try {
+            DB::transaction(function () use ($validated) {
+                // Buat data ekstrakurikuler baru
+                $ekskul = Ekstrakurikuler::create([
+                    'nama_ekstra'   => $validated['nama_ekstra'],
+                    'hari'          => $validated['hari'],
+                    'jam'           => $validated['jam'],
+                    'kuota'         => $validated['kuota'],
+                    'keterangan'    => $validated['keterangan'] ?? null,
+                    'id_pj'         => $validated['id_pj'],
+                ]);
     
-            // Update pengguna menjadi PJ
-            $pj = Pengguna::where('nim', $validated['id_pj'])->first();
-            $pj->role = 'pj';
-            $pj->id_ekstrakurikuler = $ekskul->id_ekstrakurikuler;
-            $pj->save();
+                // Update pengguna menjadi PJ
+                $pj = Pengguna::where('nim', $validated['id_pj'])->first();
+                $pj->update([
+                    'role' => 'pj',
+                    'id_ekstrakurikuler' => $ekskul->id_ekstrakurikuler,
+                ]);
+            });
+    
+            return back()->with('success', 'Ekstrakurikuler berhasil ditambahkan dan PJ diperbarui.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'Jadwal ini bentrok dengan ekstra lainnya')) {
+                return back()->with('error', 'Gagal: Jadwal ini bentrok dengan ekstrakurikuler lainnya.');
+            }
+    
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    public function toggleStatus()
+    {
+    $ekstrakurikulerAktif = Ekstrakurikuler::where('status', 'buka')->exists();
+
+    if ($ekstrakurikulerAktif) {
+        Ekstrakurikuler::where('status', 'buka')->update(['status' => 'tutup']);
+        return redirect()->back()->with('tutup', 'Seluruh ekstrakurikuler berhasil ditutup.');
+    } else {
+        Ekstrakurikuler::where('status', 'tutup')->update(['status' => 'buka']);
+        return redirect()->back()->with('status', 'Seluruh ekstrakurikuler berhasil dibuka.');
+    }
+    }   
+
+
+
+    public function destroy($id)
+    {
+        $ekskul = Ekstrakurikuler::findOrFail($id);
+    
+        DB::transaction(function () use ($ekskul) {
+            // Ambil pengguna yang jadi PJ
+            $pj = Pengguna::where('nim', $ekskul->id_pj)->first();
+    
+            if ($pj) {
+                $pj->update([
+                    'role' => 'musahil',
+                    'id_ekstrakurikuler' => null,
+                ]);
+            }
+    
+            // Hapus data ekstrakurikuler
+            $ekskul->delete();
         });
     
-        return back()->with('success', 'Ekstrakurikuler berhasil ditambahkan.');
+        return redirect()->route('admin.ekstrakurikuler.index')->with('success', 'Data berhasil dihapus');
     }
+    
     public function update(Request $request, Ekstrakurikuler $ekskul): RedirectResponse
-{
-    $validated = $request->validate([
-        'nama_ekstra' => 'required|string|max:255',
-        'hari' => 'required|string',
-        'jam' => 'required',
-        'kuota' => 'required|integer|min:1',
-        'keterangan' => 'nullable|string',
-        'id_pj' => 'required|exists:pengguna,nim',
-    ]);
-
-    DB::transaction(function () use ($ekskul, $validated) {
-        $ekskul->update($validated);
-
-        // Reset PJ lama jika berbeda
-        Pengguna::where('id_ekstrakurikuler', $ekskul->id_ekstrakurikuler)
-            ->where('role', 'pj')
-            ->where('nim', '!=', $validated['id_pj'])
-            ->update(['role' => 'warga']);
-
-        // Update PJ baru
-        Pengguna::where('nim', $validated['id_pj'])->update([
-            'role' => 'pj',
-            'id_ekstrakurikuler' => $ekskul->id_ekstrakurikuler,
-        ]);
-    });
-
-    return back()->with('success', 'Ekstrakurikuler berhasil diupdate.');
-}
+    {
+        try {
+            // Ambil semua input
+            $input = $request->all();
+    
+            // Ganti string kosong jadi null
+            foreach ($input as $key => $value) {
+                if ($value === '') {
+                    $input[$key] = null;
+                }
+            }
+    
+            // Gunakan nilai lama jika null
+            $data = [
+                'nama_ekstra' => $input['nama_ekstra'] ?? $ekskul->nama_ekstra,
+                'hari'        => $input['hari'] ?? $ekskul->hari,
+                'jam'         => $input['jam'] ?? $ekskul->jam,
+                'kuota'       => $input['kuota'] ?? $ekskul->kuota,
+                'keterangan'  => $input['keterangan'] ?? $ekskul->keterangan,
+            ];
+    
+            // Validasi
+            $validated = validator($data, [
+                'nama_ekstra' => 'required|string|max:255',
+                'hari'        => 'required|string',
+                'kuota'       => 'required|integer|min:1',
+                'jam'         => 'required',
+                'keterangan'  => 'nullable|string',
+            ])->validate();
+    
+            // Simpan perubahan
+            $ekskul->update($validated);
+    
+            return back()->with('success', 'Ekstrakurikuler berhasil diupdate.');
+    
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Tangkap error trigger (jadwal bentrok)
+            if (str_contains($e->getMessage(), 'Jadwal ini bentrok dengan ekstra lainnya')) {
+                return redirect()->back()->with('error', 'Gagal: Jadwal ini bentrok dengan ekstrakurikuler lainnya.');
+            }
+    
+            // Tangkap error lain (debugging opsional)
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+        }
+    }
+    
+    
+    
 
     /**
      * Mengeluarkan seorang anggota dari ekstrakurikuler utama.

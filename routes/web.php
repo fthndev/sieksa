@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\UserController as UserController;
 use App\Http\Controllers\Admin\PenggunaController as PenggunaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\AbsensiEkstra;
+use App\Http\Controllers\Admin\PendampingController;
 use App\Models\Absensi;
 use App\Http\Controllers\Admin\MateriController;
 
@@ -95,6 +96,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/detail-absensi/{detailAbsensi}/{pengguna}/update-status', [AbsensiController::class, 'updateStatusKehadiran'])->name('absensi.update_status');
             Route::post('/ekstrakurikuler/{ekstrakurikuler}/mulai-sesi-qr', [AbsensiController::class, 'mulaiSesiDanTampilkanQR'])->name('absensi.mulai_sesi_qr');
             Route::get('/list-warga', [ListWargaDidampingiControllerPJ::class, 'index'])->name('list-warga');
+            Route::post('/absensi/{id}/store-detail', [AbsensiController::class, 'storeDetail'])->name('absensi.store_detail');
+
+
             // routes/web.php
             Route::post('/pj/absensi/{id}/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
             Route::put('/pj/dashboard/{id}', [PjDashboardController::class, 'updateJadwal'])->name('dashboards');
@@ -116,11 +120,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
             Route::get('/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'index'])->name('ekstrakurikuler.index');
+            Route::post('/ekstrakurikuler/toggle-status', [AdminEkstrakurikulerController::class, 'toggleStatus'])->name('ekstrakurikuler.toggleStatus');
+
                 // Halaman untuk menampilkan & mengelola anggota
             Route::get('/ekstrakurikuler/{ekstrakurikuler}/kelola-anggota', [AdminEkstrakurikulerController::class, 'showMembers'])->name('ekstrakurikuler.members');
             Route::post('/{ekstrakurikuler}/tambah-anggota', [AdminEkstrakurikulerController::class, 'addMember'])->name('ekstrakurikuler.members.add');
             Route::post('/admin/ekstrakurikuler', [AdminEkstrakurikulerController::class, 'store'])->name('ekstrakurikuler.store');
             Route::put('/admin/ekstrakurikuler/{ekskul}/update', [AdminEkstrakurikulerController::class, 'update'])->name('ekstrakurikuler.update');
+            Route::delete('/admin/ekstrakurikuler/{id}', [AdminEkstrakurikulerController::class, 'destroy'])->name('ekstrakurikuler.destroy');
+
+            // Aksi untuk pendamping
+            Route::get('/admin/pendamping', [PendampingController::class, 'index'])->name('pendamping.index');
+            Route::get('/admin/pendamping/{musahhil}/warga', [PendampingController::class, 'wargaDidampingi'])->name('pendamping.warga');
+            Route::delete('/admin/pendamping/{nim}', [PendampingController::class, 'destroy'])->name('pendamping.destroy');
+            Route::post('/admin/pendamping/tambah', [PendampingController::class, 'tambahPendamping'])->name('pendamping.tambah');
 
             // Aksi untuk mengeluarkan anggota dari ekskul
             Route::delete('/ekstrakurikuler/members/{ekstrakurikuler}/{pengguna}/remove', [AdminEkstrakurikulerController::class, 'removeMember'])->name('ekstrakurikuler.members.remove');

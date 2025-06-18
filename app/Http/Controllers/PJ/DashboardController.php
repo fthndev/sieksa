@@ -58,19 +58,32 @@ class DashboardController extends Controller
         ]);
     }
     public function updateJadwal(Request $request, $id)
-{
-    $request->validate([
-        'hari' => 'required|string',
-        'jam' => 'required',
-    ]);
-
-    $ekskul = Ekstrakurikuler::findOrFail($id);
-    $ekskul->hari = $request->hari;
-    $ekskul->jam = $request->jam;
-    $ekskul->save();
-
-    return back()->with('status', 'Jadwal berhasil diperbarui!');
-}
+    {
+        $request->validate([
+            'hari' => 'required|string',
+            'jam'  => 'required',
+        ]);
+    
+        try {
+            $ekskul = Ekstrakurikuler::findOrFail($id);
+            $ekskul->hari = $request->hari;
+            $ekskul->jam  = $request->jam;
+            $ekskul->save();
+    
+            return back()->with('success', 'Jadwal berhasil diperbarui!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Jika error karena jadwal bentrok (misal dari trigger di database)
+            if (str_contains($e->getMessage(), 'Jadwal ini bentrok dengan ekstra lainnya')) {
+                return back()->with('error', 'Gagal memperbarui: Jadwal bentrok dengan ekstrakurikuler lain.');
+            }
+    
+            // Untuk error lainnya
+            return back()->withErrors([
+                'error' => 'Terjadi kesalahan saat memperbarui jadwal: ' . $e->getMessage()
+            ])->withInput();
+        }
+    }
+    
 
     // Anda bisa menambahkan method lain di sini untuk aksi-aksi spesifik PJ
     // Misalnya:

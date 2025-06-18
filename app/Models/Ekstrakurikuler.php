@@ -21,7 +21,8 @@ class Ekstrakurikuler extends Model
         'hari',
         'jam',
         'kuota',
-        'ketrangan',
+        'keterangan',
+        'status',
         'id_pj' // <-- TAMBAHKAN id_pj ke fillable
     ];
 

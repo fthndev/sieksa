@@ -167,9 +167,9 @@
                         <i class="fas fa-puzzle-piece me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
                         Kelola Ekstrakurikuler
                     </a>
-                    <a href="#" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
-                        <i class="fas fa-calendar-alt me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
-                        Kelola Jadwal
+                    <a href="{{route('admin.pendamping.index')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
+                        <i class="fas fa-user-friends me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
+                        Kelola Pendamping
                     </a>
                     <a href="{{route('admin.daftar_materi_ekstra')}}" class="{{ $baseLinkClass }} {{ $inactiveLinkClass }}">
                         <i class="fas fa-book-open me-3 w-5 text-center {{ $inactiveIconClass }}"></i>
