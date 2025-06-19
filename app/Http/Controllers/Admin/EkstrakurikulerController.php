@@ -259,4 +259,24 @@ class EkstrakurikulerController extends Controller
         }
         return back()->with('error', 'Ekstrakurikuler ini tidak memiliki Penanggung Jawab.');
     }
+    public function addMember(Request $request, Ekstrakurikuler $ekstrakurikuler): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nim_anggota' => 'required|exists:pengguna,nim',
+        ]);
+
+        DB::transaction(function () use ($validated, $ekstrakurikuler) {
+            $pengguna = Pengguna::where('nim', $validated['nim_anggota'])->lockForUpdate()->firstOrFail();
+
+            if ($pengguna->id_ekstrakurikuler) {
+                throw new \Exception("Sudah terdaftar di ekskul lain.");
+            }
+
+            $pengguna->update([
+                'id_ekstrakurikuler' => $ekstrakurikuler->id_ekstrakurikuler
+            ]);
+        });
+
+        return back()->with('success', "Berhasil menambahkan anggota.");
+    }
 }

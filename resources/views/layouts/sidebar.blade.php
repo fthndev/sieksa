@@ -10,7 +10,7 @@
     {{-- Header Sidebar --}}
     <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
         <a href="{{ route('dashboard') }}" class="text-xl font-bold text-red-700 dark:text-red-500">
-            SIEKSAd Panel
+            SIEKSA Panel
         </a>
         <button @click="sidebarOpen = false" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 p-1 -mr-1">
             <i class="fas fa-times text-xl"></i>

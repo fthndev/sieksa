@@ -27,7 +27,7 @@
                          <path fill-rule="evenodd" d="M9.504 1.132a1 1 0 01.992 0l6 3A1 1 0 0117 5v10a1 1 0 01-.5.866l-6 4a1 1 0 01-1 0l-6-4a1 1 0 01-.5-.866V5a1 1 0 01.504-.868l6-3zM10 4.618L4.802 7.5 10 10.382 15.198 7.5 10 4.618zM15 9.035l-4.223 2.815a1.002 1.002 0 01-1.554 0L5 9.035V14.5l5 3.333 5-3.333V9.035z" clip-rule="evenodd"></path>
                     </svg>
                 </a>
-                <h1 class="text-4xl lg:text-5xl font-bold mb-3 tracking-tight leading-tight">Bergabunglah dengan SIEKSAd</h1>
+                <h1 class="text-4xl lg:text-5xl font-bold mb-3 tracking-tight leading-tight">Bergabunglah dengan SIEKSA</h1>
                 <p class="text-lg lg:text-xl font-light text-red-100 dark:text-red-200">
                     Buat akun untuk mulai mengelola dan mengikuti ekstrakurikuler.
                 </p>
@@ -66,7 +66,8 @@
                             <i class="fas fa-user text-slate-400 group-focus-within:text-red-600 dark:text-slate-500 dark:group-focus-within:text-red-500 transition-colors duration-300"></i>
                         </div>
                         <input
-                            id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" placeholder=" "
+                            id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" placeholder=" "pattern="^[a-zA-Z\s]+$"
+                            title="Nama hanya boleh mengandung huruf dan spasi"
                             class="block ps-10 pe-3.5 py-3.5 w-full text-sm text-slate-900 dark:text-white bg-transparent rounded-lg border-2 border-slate-300 dark:border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 dark:focus:border-red-500 peer"
                         />
                         <label for="name" class="absolute text-sm text-slate-500 dark:text-slate-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-50 dark:bg-slate-900 px-2 peer-focus:px-2 peer-focus:text-red-600 dark:peer-focus:text-red-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-[38px] peer-placeholder-shown:start-[38px] peer-focus:start-3">

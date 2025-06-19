@@ -15,7 +15,7 @@
 
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-red-700 dark:text-red-500">
-                        SIEKSAd
+                        SIEKSA
                     </a>
                 </div>
 
